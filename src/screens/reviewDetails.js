@@ -10,7 +10,7 @@ export default function reviewDetails({navigation}) {
             <Text>{navigation.getParam('body')}</Text>
             <Text>{navigation.getParam('rating')}</Text>
             <Button onPress={() => navigation.navigate('Test')}/>
-        </View>
+        </View>   
     );
 }
 
