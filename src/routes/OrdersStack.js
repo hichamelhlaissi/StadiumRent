@@ -1,16 +1,18 @@
 import { createStackNavigator } from 'react-navigation-stack';
-import Profile from '../screens/Profile'
+import Orders from '../screens/Orders/Orders'
 import Header from "../shared/header";
 import React from 'react';
+
 const screens = {
-    Profile:{
-        screen: Profile,
+    Orders:{
+        screen: Orders,
         navigationOptions: ({ navigation }) => {
             return {
-                headerTitle: () => <Header navigation={navigation} title='Profile'/>,
+                headerTitle: () => <Header navigation={navigation} title='Orders'/>,
             }
         }
     },
+
 };
-const ProfileStack = createStackNavigator(screens);
-export default ProfileStack;
+const OrdersStack = createStackNavigator(screens);
+export default OrdersStack;
