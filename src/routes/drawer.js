@@ -3,6 +3,9 @@ import {createAppContainer} from "react-navigation";
 import AboutStack from "./AboutStack";
 import HomeStack from "./HomeStack";
 import ProfileStack from "./ProfileStack";
+import OrdersStack from "./OrdersStack";
+import FavoriteStadiumsStack from "./FavoriteStadiumsStack";
+import SubscriptionsStack from "./SubscriptionsStack";
 import ScrollView from "react-native-web/dist/exports/ScrollView";
 import { StyleSheet, Text, View, FlatList, TouchableOpacity, Image} from 'react-native';
 import SafeAreaView from "react-native-web/dist/exports/SafeAreaView";
@@ -17,6 +20,15 @@ const RootDrawerNavigator = createDrawerNavigator({
     },
     Profile: {
         screen: ProfileStack,
+    },
+    Orders: {
+        screen: OrdersStack,
+    },
+    FavoriteStadiums: {
+        screen: FavoriteStadiumsStack,
+    },
+    Subscriptions: {
+        screen: SubscriptionsStack,
     },
     About: {
         screen: AboutStack,
