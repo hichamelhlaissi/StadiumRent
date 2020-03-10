@@ -150,8 +150,8 @@ export default class Home extends Component {
         <View style={styles.cardContainer}>
             <Text style={styles.cardTitle}>{item.name}</Text>
             <Image style={styles.cardImage} source={item.image} />
-            <TouchableOpacity onPress={() =>
-                this.props.navigation.navigate('Hour', {data:'Hicham Elhlaissi'})}>
+                <TouchableOpacity onPress={() =>
+                    this.props.navigation.navigate('Hour', {data:'Hicham Elhlaissi'})}>
                 <Text>Go Order</Text>
             </TouchableOpacity>
         </View>;

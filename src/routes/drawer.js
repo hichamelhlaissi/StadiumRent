@@ -1,3 +1,4 @@
+import React from "react";
 import {createDrawerNavigator, DrawerItems} from "react-navigation-drawer";
 import {createAppContainer} from "react-navigation";
 import AboutStack from "./AboutStack";
@@ -6,17 +7,14 @@ import ProfileStack from "./ProfileStack";
 import OrdersStack from "./OrdersStack";
 import FavoriteStadiumsStack from "./FavoriteStadiumsStack";
 import SubscriptionsStack from "./SubscriptionsStack";
-import ScrollView from "react-native-web/dist/exports/ScrollView";
-import { StyleSheet, Text, View, FlatList, TouchableOpacity, Image} from 'react-native';
-import SafeAreaView from "react-native-web/dist/exports/SafeAreaView";
+import {StyleSheet, Text, View, FlatList, TouchableOpacity, Image, Button} from 'react-native';
 import {Container, Header, Body, Content} from 'native-base';
-import React from "react";
+
 
 
 const RootDrawerNavigator = createDrawerNavigator({
     Home: {
         screen: HomeStack,
-        icon: 'unnamed.png',
     },
     Profile: {
         screen: ProfileStack,
@@ -36,15 +34,15 @@ const RootDrawerNavigator = createDrawerNavigator({
 },{
     contentComponent: (props) => (
         <Container>
-            <Header style={{height: 200, backgroundColor: 'white'}}>
+            <Header style={{height: 200, backgroundColor: '#9eccff'}}>
                 <Body>
                         <Image
                             style={styles.DrawerImage}
                             source={require('../../assets/Images/App-Image.png')} />
                 </Body>
             </Header>
-            <Content>
-                <DrawerItems {...props}/>
+            <Content style={{backgroundColor: '#ffffff'}}>
+                    <DrawerItems {...props} />
             </Content>
         </Container>
     ),
