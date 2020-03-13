@@ -7,7 +7,7 @@ import ProfileStack from "./ProfileStack";
 import OrdersStack from "./OrdersStack";
 import FavoriteStadiumsStack from "./FavoriteStadiumsStack";
 import SubscriptionsStack from "./SubscriptionsStack";
-import YourStaduimsStack from "./YourStaduimsStack";
+import MyStaduimsStack from "./MyStaduimsStack";
 import ScheduleStack from "./ScheduleStack";
 import {StyleSheet, Text, View, FlatList, TouchableOpacity, Image, Button} from 'react-native';
 import {Container, Header, Body, Content} from 'native-base';
@@ -18,8 +18,8 @@ const RootDrawerNavigator = createDrawerNavigator({
     Home: {
         screen: HomeStack,
     },
-    YourStaduims: {
-        screen: YourStaduimsStack,
+    MyStaduims: {
+        screen: MyStaduimsStack,
     },
     Schedule: {
         screen: ScheduleStack,

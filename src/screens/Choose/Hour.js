@@ -1,6 +1,5 @@
 import React, {useState, Component} from 'react';
 import {View, Button, Platform, Text, StyleSheet, TouchableOpacity, Image, Alert} from 'react-native';
-import StarRating from "react-native-star-rating";
 import { MaterialIcons, Entypo, FontAwesome} from '@expo/vector-icons';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import ModalWrapper from "react-native-modal-wrapper";

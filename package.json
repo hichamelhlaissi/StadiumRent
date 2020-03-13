@@ -8,68 +8,49 @@
     "eject": "expo eject"
   },
   "dependencies": {
-    "@expo/vector-icons": "^10.0.6",
-<<<<<<< HEAD
-    "@mapbox/react-native-mapbox-gl": "^6.1.3",
-=======
-    "@react-native-community/datetimepicker": "^2.2.3",
->>>>>>> 6705737b3cbbf7a019cdb10f7a47e8fc08a0b0bf
-    "@react-native-community/masked-view": "0.1.5",
-    "@react-navigation/native": "^5.0.5",
-    "@react-navigation/stack": "^5.0.5",
+    "@expo/vector-icons": "latest",
+    "@react-native-community/datetimepicker": "^2.1.0",
+    "@react-native-community/geolocation": "^2.0.2",
+    "@react-native-community/masked-view": "^0.1.5",
     "expo": "~36.0.0",
-<<<<<<< HEAD
     "expo-constants": "latest",
+    "expo-image-picker": "^8.0.2",
     "expo-intent-launcher": "^8.0.0",
-    "expo-location": "^8.0.0",
-    "expo-permissions": "^8.0.0",
-=======
-    "expo-constants": "^8.0.0",
-    "expo-intent-launcher": "^8.0.0",
-    "expo-location": "^8.0.0",
-    "expo-permissions": "^8.0.0",
+    "expo-location": "latest",
+    "expo-permissions": "latest",
     "firebase": "^7.10.0",
->>>>>>> 6705737b3cbbf7a019cdb10f7a47e8fc08a0b0bf
+    "formik": "^2.1.4",
     "native-base": "^2.13.8",
     "react": "~16.9.0",
-    "react-base": "^0.2.0",
     "react-dom": "~16.9.0",
     "react-native": "https://github.com/expo/react-native/archive/sdk-36.0.0.tar.gz",
+    "react-native-check-box": "^2.1.7",
     "react-native-elements": "^1.2.7",
     "react-native-geocoding": "^0.4.0",
-    "react-native-gesture-handler": "~1.5.0",
-<<<<<<< HEAD
+    "react-native-gesture-handler": "^1.5.0",
     "react-native-google-places-autocomplete": "^1.4.1",
-=======
->>>>>>> 6705737b3cbbf7a019cdb10f7a47e8fc08a0b0bf
     "react-native-maps": "^0.26.1",
     "react-native-modal-wrapper": "^3.1.1",
     "react-native-paper": "^3.6.0",
     "react-native-picker-select": "^6.6.0",
-    "react-native-rating": "^2.0.4",
-    "react-native-reanimated": "~1.4.0",
-    "react-native-safe-area-context": "0.6.0",
+    "react-native-reanimated": "^1.4.0",
+    "react-native-restart": "0.0.14",
+    "react-native-safe-area-context": "^0.6.0",
     "react-native-screens": "2.0.0-alpha.12",
-<<<<<<< HEAD
-    "react-native-star-rating": "^1.1.0",
-=======
     "react-native-snap-carousel": "^3.8.4",
->>>>>>> 6705737b3cbbf7a019cdb10f7a47e8fc08a0b0bf
+    "react-native-spinkit": "^1.5.0",
+    "react-native-star-rating": "^1.1.0",
     "react-native-tab-view": "^2.13.0",
     "react-native-vector-icons": "latest",
     "react-native-web": "~0.11.7",
-    "react-native-wheel-picker": "^1.2.0",
-    "react-native-wheel-picker-android": "^2.0.6",
-    "react-navigation-drawer": "^2.3.4",
-    "react-navigation-stack": "^2.1.1",
-    "yarn": "^1.22.0"
+    "react-navigation": "^4.2.1",
+    "react-navigation-drawer": "^2.4.1",
+    "react-navigation-stack": "^2.2.1",
+    "yup": "^0.28.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.0.0",
     "babel-preset-expo": "~8.0.0",
-    "react-native-datepicker": "^1.7.2",
-    "react-native-star-rating": "^1.1.0",
-    "react-navigation": "^4.1.1"
+    "@babel/core": "^7.0.0"
   },
   "private": true
 }

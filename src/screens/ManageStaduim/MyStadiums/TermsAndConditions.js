@@ -1,16 +1,14 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-export default class YourStaduims extends React.Component{
+export default class TermsAndConditions extends React.Component{
     render() {
         return (
             <View style={styles.container}>
-                <Text>YourStaduims</Text>
+                <Text>Terms and conditions</Text>
             </View>
         );
     }
-
-
 }
 
 const styles = StyleSheet.create({
