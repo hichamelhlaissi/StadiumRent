@@ -1,5 +1,5 @@
 import { createStackNavigator } from 'react-navigation-stack';
-import Schedule from "../screens/ManageStaduim/Schedule";
+import Schedule from "../screens/ManageStaduim/Schedule/Schedule";
 import Header from "../shared/header";
 import React from 'react';
 

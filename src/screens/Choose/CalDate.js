@@ -38,6 +38,8 @@ const App = () => {
 
             {show && (
                 <RNDateTimePicker
+                    maximumDate={new Date(2020, 3, 14)}
+                    minimumDate={new Date(2020, 3, 8)}
                     testID="dateTimePicker"
                     timeZoneOffsetInMinutes={0}
                     value={date}

@@ -14,10 +14,8 @@ import {Container, Header, Body, Content} from 'native-base';
 
 
 
-const RootDrawerNavigator = createDrawerNavigator({
-    Home: {
-        screen: HomeStack,
-    },
+const RootDrawerOwnerNavigator = createDrawerNavigator({
+
     MyStaduims: {
         screen: MyStaduimsStack,
     },
@@ -27,15 +25,6 @@ const RootDrawerNavigator = createDrawerNavigator({
     Profile: {
         screen: ProfileStack,
     },
-    Orders: {
-        screen: OrdersStack,
-    },
-    FavoriteStadiums: {
-        screen: FavoriteStadiumsStack,
-    },
-    Subscriptions: {
-        screen: SubscriptionsStack,
-    },
     About: {
         screen: AboutStack,
     },
@@ -44,23 +33,24 @@ const RootDrawerNavigator = createDrawerNavigator({
         <Container>
             <Header style={{height: 200, backgroundColor: '#9eccff'}}>
                 <Body>
-                        <Image
-                            style={styles.DrawerImage}
-                            source={require('../../assets/Images/App-Image.png')} />
+                    <Image
+                        style={styles.DrawerImage}
+                        source={require('../../assets/Images/App-Image.png')} />
                 </Body>
             </Header>
             <Content style={{backgroundColor: '#ffffff'}}>
-                    <DrawerItems {...props} />
+                <DrawerItems {...props} />
             </Content>
         </Container>
     ),
     drawerOpenRoute: 'DrawerOpen',
     drawerCloseRoute: 'DrawerClose',
     drawerToggleRoute: 'DrawerToggle',
+    initialRouteName: 'MyStaduims',
 });
 
 
-export default createAppContainer(RootDrawerNavigator);
+export default createAppContainer(RootDrawerOwnerNavigator);
 
 const styles = StyleSheet.create({
     DrawerImage:{
