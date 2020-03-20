@@ -1,16 +1,38 @@
-import Firebase from "firebase";
+import * as firebase from "firebase";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyAp6Q4rUGg7QQdfOEi86Zwyi0YcU6SnUBQ",
-    authDomain: "crudproject-19a21.firebaseapp.com",
-    databaseURL: "https://crudproject-19a21.firebaseio.com",
-    projectId: "crudproject-19a21",
-    storageBucket: "crudproject-19a21.appspot.com",
-    messagingSenderId: "896942028967",
-    appId: "1:896942028967:web:d64112ef33d6fc5cb54382",
-    measurementId: "G-12ZJZBBW2V"
+    apiKey: "AIzaSyBrYOM8z6ZwVZeduTQ98sY1KlkcwBW_lbI",
+    authDomain: "stadiumrent.firebaseapp.com",
+    databaseURL: "https://stadiumrent.firebaseio.com",
+    projectId: "stadiumrent",
+    storageBucket: "stadiumrent.appspot.com",
+    messagingSenderId: "883002894442",
+    appId: "1:883002894442:web:d87612cc26cf15df570213",
+    measurementId: "G-3Q4C94Q1B4"
 };
 // Initialize Firebase
-const app = Firebase.initializeApp(firebaseConfig);
+const app = firebase.initializeApp(firebaseConfig);
 export const db = app.database();
 export const storage = app.storage();
+export const auth = app.auth();
+
+
+
+
+
+// import * as firebase from "firebase";
+//
+// const firebaseConfig = {
+//     apiKey: "AIzaSyBrYOM8z6ZwVZeduTQ98sY1KlkcwBW_lbI",
+//     authDomain: "stadiumrent.firebaseapp.com",
+//     databaseURL: "https://stadiumrent.firebaseio.com",
+//     projectId: "stadiumrent",
+//     storageBucket: "stadiumrent.appspot.com",
+//     messagingSenderId: "883002894442",
+//     appId: "1:883002894442:web:d87612cc26cf15df570213",
+//     measurementId: "G-3Q4C94Q1B4"
+// };
+// // Initialize Firebase
+// if (!firebase.apps.length) {
+//     firebase.initializeApp(firebaseConfig);
+// }
