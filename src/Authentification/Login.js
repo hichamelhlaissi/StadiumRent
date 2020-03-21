@@ -23,19 +23,23 @@ export default class Login extends React.Component{
 
     }
     componentDidMount() {
-        setInterval(() => {
-
-            let isLogged = auth.currentUser;
-            console.log("hadaghauser", isLogged);
-            if (isLogged){
-                this.props.navigation.navigate('Home');
-
-            }else {
-                this.setState({isLoading: false});
-            }
-
-        }, 10000);
+        this.SetData();
     }
+
+SetData =(props , Change=()=>this.setState({isLoading: false}))=>{
+        props=this.props;
+    setTimeout(function(){
+        let isLogged = auth.currentUser;
+
+        console.log("hadaghauser", isLogged);
+        if (isLogged){
+            props.navigation.navigate('Home');
+        }else{
+            Change();
+            console.log('hhhhhhhhhhhhhhhhhhhhh');
+        }
+    }, 10000);
+};
 
     handleEmail(value){
         this.setState({email: value})
