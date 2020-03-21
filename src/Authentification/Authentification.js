@@ -59,7 +59,7 @@ export default class Authentification extends React.Component{
 
         return (
             <View style={styles.headerWrapper}>
-                <Animated.View style={{ opacity }}></Animated.View>
+                <Animated.View style={{opacity}}/>
             </View>
         )
     };

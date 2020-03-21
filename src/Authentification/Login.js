@@ -1,5 +1,5 @@
 import React from 'react'
-import {Text, View, Animated, StyleSheet, Image, TextInput, TouchableOpacity, Alert} from 'react-native'
+import {Text, View, Animated, StyleSheet, Image, TextInput, TouchableOpacity, Alert, ActivityIndicator} from 'react-native'
 import StickyParallaxHeader from 'react-native-sticky-parallax-header'
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import { SocialIcon } from 'react-native-elements'
@@ -32,6 +32,7 @@ export default class Login extends React.Component{
             email: "",
             username: "",
             password: "",
+
         };
     }
 
@@ -41,19 +42,22 @@ export default class Login extends React.Component{
     handlePassword(value){
         this.setState({password: value})
     };
-    loginUser = (email, password, props) => {
-        props = this.props;
+    loginUser = (email, password) => {
+
         try {
             auth.signInWithEmailAndPassword(email, password).then(function (user) {
-                // props.navigation.navigate('Home')
+                 //this.props.navigation.navigate('Home');
+
                 console.log(user)
             })
         }catch (error) {
             alert("Email or password incorrect")
         }
+
     };
 
     render(){
+
         return (
             <View style={styles.content}>
                 <View style={styles.inputs}>
@@ -89,9 +93,9 @@ export default class Login extends React.Component{
                     <Text style={styles.buttonSubmitText}>Login</Text>
                 </TouchableOpacity >
                 <View style={styles.lineContent}>
-                    <View style={styles.line}></View>
+                    <View style={styles.line}/>
                     <Text style={styles.orText}>Or</Text>
-                    <View style={styles.line}></View>
+                    <View style={styles.line}/>
                 </View>
                 <View style={styles.socialButtonsContainer}>
                     <SocialIcon
