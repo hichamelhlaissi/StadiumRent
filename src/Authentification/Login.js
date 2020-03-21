@@ -1,39 +1,40 @@
 import React from 'react'
-import {Text, View, Animated, StyleSheet, Image, TextInput, TouchableOpacity, Alert, ActivityIndicator} from 'react-native'
+import {Text, View, Animated, StyleSheet, Image, TextInput, TouchableOpacity, Alert, ActivityIndicator, ImageBackground} from 'react-native'
 import StickyParallaxHeader from 'react-native-sticky-parallax-header'
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import { SocialIcon } from 'react-native-elements'
 import {auth} from '../services/FireBaseConfig'
+import {APPROX_STATUSBAR_HEIGHT} from "react-native-paper/src/constants";
 
-
-// import * as firebase from "firebase";
-//
-// const firebaseConfig = {
-//     apiKey: "AIzaSyBrYOM8z6ZwVZeduTQ98sY1KlkcwBW_lbI",
-//     authDomain: "stadiumrent.firebaseapp.com",
-//     databaseURL: "https://stadiumrent.firebaseio.com",
-//     projectId: "stadiumrent",
-//     storageBucket: "stadiumrent.appspot.com",
-//     messagingSenderId: "883002894442",
-//     appId: "1:883002894442:web:d87612cc26cf15df570213",
-//     measurementId: "G-3Q4C94Q1B4"
-// };
-// // Initialize Firebase
-// if (!firebase.apps.length) {
-//     firebase.initializeApp(firebaseConfig);
-// }
 
 
 export default class Login extends React.Component{
     constructor(props){
         super(props);
+        const {state} = props.navigation;
         this.state = {
             scroll: new Animated.Value(0),
             email: "",
             username: "",
             password: "",
-
+            isLoading: true
         };
+
+
+    }
+    componentDidMount() {
+        setInterval(() => {
+
+            let isLogged = auth.currentUser;
+            console.log("hadaghauser", isLogged);
+            if (isLogged){
+                this.props.navigation.navigate('Home');
+
+            }else {
+                this.setState({isLoading: false});
+            }
+
+        }, 10000);
     }
 
     handleEmail(value){
@@ -42,11 +43,11 @@ export default class Login extends React.Component{
     handlePassword(value){
         this.setState({password: value})
     };
-    loginUser = (email, password) => {
-
+    loginUser = (email, password, props) => {
+        props = this.props;
         try {
             auth.signInWithEmailAndPassword(email, password).then(function (user) {
-                 //this.props.navigation.navigate('Home');
+                 props.navigation.navigate('Home');
 
                 console.log(user)
             })
@@ -55,9 +56,14 @@ export default class Login extends React.Component{
         }
 
     };
-
     render(){
 
+        if (this.state.isLoading) {
+            return (
+                <ImageBackground source={require('../../assets/Images/main.png')} style={{flex:1}}/>
+
+            );
+        }
         return (
             <View style={styles.content}>
                 <View style={styles.inputs}>
@@ -91,6 +97,11 @@ export default class Login extends React.Component{
                 </View>
                 <TouchableOpacity style={styles.buttonSubmit} onPress={() => this.loginUser(this.state.email, this.state.password)}>
                     <Text style={styles.buttonSubmitText}>Login</Text>
+                </TouchableOpacity >
+
+                <TouchableOpacity style={styles.buttonSubmit} onPress={() =>
+                    this.props.navigation.navigate('Register', {data:'Hicham Elhlaissi'})}>
+                    <Text style={styles.buttonSubmitText}>Register</Text>
                 </TouchableOpacity >
                 <View style={styles.lineContent}>
                     <View style={styles.line}/>
@@ -130,6 +141,9 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         alignItems: 'center',
         justifyContent: 'center',
+        height:'100%',
+        width:'100%'
+
     },
     content: {
         flexDirection: 'column',

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import {StyleSheet, Text, View, FlatList, TouchableOpacity, AppState, Image, Dimensions} from 'react-native';
-import {db} from '../services/FireBaseConfig';
+import {auth, db} from '../services/FireBaseConfig';
 import Constants from 'expo-constants';
 import * as Location from 'expo-location';
 import * as Permissions from 'expo-permissions';
@@ -13,19 +13,28 @@ import Carousel from 'react-native-snap-carousel';
 export default class Home extends Component {
     constructor(props){
         super(props);
+        let isLogged = auth.currentUser;
+        console.log("hadaghauser", isLogged);
         const {state} = props.navigation;
-        if (Platform.OS === 'android' && !Constants.isDevice || Platform.OS === 'ios' && !Constants.isDevice) {
-            this.setState({
-                errorMessage: 'Oops, this will not work on Sketch in an Android emulator. Try it on your device!',
-            });
-        } else {
-            this._getLocationAsync();
+
+
+if (isLogged){
+
+    if (Platform.OS === 'android' && !Constants.isDevice || Platform.OS === 'ios' && !Constants.isDevice) {
+        this.setState({
+            errorMessage: 'Oops, this will not work on Sketch in an Android emulator. Try it on your device!',
+        });
+    } else {
+        this._getLocationAsync();
+    }
+    Location.hasServicesEnabledAsync().then(
+        data=>{
+            console.log(data)
         }
-        Location.hasServicesEnabledAsync().then(
-            data=>{
-                console.log(data)
-            }
-        )
+    )
+}
+
+
     }
     state = {
         locationPermission :false,
@@ -135,7 +144,6 @@ export default class Home extends Component {
         this.state.markers[index].showCallout()
     };
 
-
     onMarkerPressed = (location, index) => {
         this._map.animateToRegion({
             latitude: location.latitude,
@@ -157,7 +165,8 @@ export default class Home extends Component {
         </View>;
     render() {
 
-
+        let user = auth.currentUser;
+        console.log("hadaghauser", user);
     return (
         <View style={styles.container}>
             <MapView style={styles.map}

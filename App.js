@@ -16,28 +16,28 @@ export default class App extends React.Component{
 
         }
     }
-     DrawerSelected =()=>{
-
-        this.state.user = auth.currentUser;
-        console.log("hadaghauser", this.state.user);
-        if (this.state.user) {
-            console.log("loginaaa", this.state.user);
-            return <NavigatorUser/>
-        } if (!this.state.user) {
-            console.log("waaaaaaaaaaaaalo", this.state.user);
-            return <NavigatorAuth/>
-        }
-        return this.state.user;
-    };
-    componentDidMount() {
-        this.DrawerSelected();
-    }
+    //  DrawerSelected =()=>{
+    //
+    //     this.state.user = auth.currentUser;
+    //     console.log("hadaghauser", this.state.user);
+    //     if (this.state.user) {
+    //         console.log("loginaaa", this.state.user);
+    //         return <NavigatorUser/>
+    //     } if (!this.state.user) {
+    //         console.log("waaaaaaaaaaaaalo", this.state.user);
+    //         return <NavigatorAuth/>
+    //     }
+    //     return this.state.user;
+    // };
+    // componentDidMount() {
+    //     this.DrawerSelected();
+    // }
 
     render() {
         console.disableYellowBox = true;
 
         return (
-            <this.DrawerSelected/>
+            <NavigatorUser/>
         );
     }
 

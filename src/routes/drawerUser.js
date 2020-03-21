@@ -9,12 +9,19 @@ import FavoriteStadiumsStack from "./FavoriteStadiumsStack";
 import SubscriptionsStack from "./SubscriptionsStack";
 import MyStaduimsStack from "./MyStaduimsStack";
 import ScheduleStack from "./ScheduleStack";
+import LoginStack from "./LoginStack";
 import {StyleSheet, Text, View, FlatList, TouchableOpacity, Image, Button} from 'react-native';
 import {Container, Header, Body, Content} from 'native-base';
 
 
 
 const RootDrawerNavigator = createDrawerNavigator({
+    Login: {
+        screen: LoginStack,
+        navigationOptions: {
+            drawerLabel: () => null
+        }
+    },
     Home: {
         screen: HomeStack,
     },
@@ -51,9 +58,8 @@ const RootDrawerNavigator = createDrawerNavigator({
     drawerOpenRoute: 'DrawerOpen',
     drawerCloseRoute: 'DrawerClose',
     drawerToggleRoute: 'DrawerToggle',
-    initialRouteName: 'Home',
+    initialRouteName: 'Login',
 });
-
 
 export default createAppContainer(RootDrawerNavigator);
 
