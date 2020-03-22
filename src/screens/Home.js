@@ -14,7 +14,7 @@ export default class Home extends Component {
     constructor(props){
         super(props);
         let isLogged = auth.currentUser;
-        console.log("hadaghauser", isLogged);
+        //console.log("hadaghauser", isLogged);
         const {state} = props.navigation;
 
 
@@ -29,7 +29,7 @@ if (isLogged){
     }
     Location.hasServicesEnabledAsync().then(
         data=>{
-            console.log(data)
+            //console.log(data)
         }
     )
 }
@@ -80,7 +80,7 @@ if (isLogged){
                 lat: location.coords.latitude,
                 lng: location.coords.longitude,
             } });
-        console.log(this.state.initialPosition)
+        //console.log(this.state.initialPosition)
 
     };
     requestlocation =()=>{
@@ -166,7 +166,7 @@ if (isLogged){
     render() {
 
         let user = auth.currentUser;
-        console.log("hadaghauser", user);
+        //console.log("hadaghauser", user);
     return (
         <View style={styles.container}>
             <MapView style={styles.map}
