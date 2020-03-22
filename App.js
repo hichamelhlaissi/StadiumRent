@@ -13,7 +13,8 @@ export default class App extends React.Component{
         super();
         this.state = {
             user:{},
-            userInfo:{}
+            userInfo:{},
+            data:{}
 
         }
     }
@@ -31,9 +32,31 @@ export default class App extends React.Component{
     //     }
     //     return this.state.user;
     // };
-    // componentDidMount() {
-    //     this.DrawerSelected();
-    // }
+    componentDidMount() {
+        //this.DrawerSelected();
+
+        this.state.user = auth.currentUser;
+        db.ref('/users').on('value', querySnapShot => {
+            let data = querySnapShot.val() ? querySnapShot.val() : {};
+            let users = {...data};
+            let usersKey = Object.keys(users);
+            this.setState({
+                data: users,
+            });
+            console.log(this.state.user.uid);
+            console.log(users)
+
+        });
+
+            // .on('value', querySnapShot => {
+            // let data = querySnapShot.val() ? querySnapShot.val() : {};
+            // let users = {...data};
+            // let userKey = Object.keys(users);
+            // this.setState({
+            //     data: users[userKey],
+            // });
+
+    }
 
     render() {
         console.disableYellowBox = true;
