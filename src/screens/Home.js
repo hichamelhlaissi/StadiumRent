@@ -126,9 +126,7 @@ if (isLogged){
             });
 
         });
-        console.ignoredYellowBox = [
-            'Setting a timer'
-        ]
+
     };
 
     onCarouselItemChange = (index) => {
