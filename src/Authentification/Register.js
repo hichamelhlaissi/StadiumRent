@@ -4,7 +4,23 @@ import StickyParallaxHeader from 'react-native-sticky-parallax-header'
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import { SocialIcon } from 'react-native-elements'
 //import {auth} from '../services/FireBaseConfig'
-import {auth} from '../services/FireBaseConfig'
+import {auth, db} from '../services/FireBaseConfig'
+import {APPROX_STATUSBAR_HEIGHT} from "react-native-paper/src/constants";
+// import * as firebase from "firebase";
+// import 'firebase/firestore';
+//
+// const firebaseConfig = {
+//     apiKey: "AIzaSyBrYOM8z6ZwVZeduTQ98sY1KlkcwBW_lbI",
+//     authDomain: "stadiumrent.firebaseapp.com",
+//     databaseURL: "https://stadiumrent.firebaseio.com",
+//     projectId: "stadiumrent",
+//     storageBucket: "stadiumrent.appspot.com",
+//     messagingSenderId: "883002894442",
+//     appId: "1:883002894442:web:d87612cc26cf15df570213",
+//     measurementId: "G-3Q4C94Q1B4"
+// };
+// // Initialize Firebase
+// firebase.initializeApp(firebaseConfig);
 
 
 
@@ -16,6 +32,8 @@ export default class Register extends React.Component{
             email: "",
             username: "",
             password: "",
+            userType: "userResponsible",
+            happy: true
         };
     }
 
@@ -34,7 +52,14 @@ export default class Register extends React.Component{
             if (this.state.password.length < 6) {
                 alert("please enter atleast 6 characters")
             }
-            auth.createUserWithEmailAndPassword(email, password)
+            auth.createUserWithEmailAndPassword(email, password).then(user => {
+                db.ref('/users').push({
+                    uid: user.user.uid,
+                    userType: this.state.userType,
+                    happy: this.state.happy
+                });
+                Alert.alert('Action!', 'L3azz');
+            })
         }catch (error) {
             console.log(error)
         }
@@ -44,7 +69,8 @@ export default class Register extends React.Component{
 
     render(){
         return (
-            <View style={styles.content}>
+            <View style={styles.container}>
+                <Image style={styles.imageAuth} source={require('../../assets/Images/authImage.png')} />
                 <View style={styles.inputs}>
                     <View style={styles.inputContainer}>
                         <Icon style={styles.searchIcon} name="user" size={20} color="#000"/>
@@ -87,9 +113,12 @@ export default class Register extends React.Component{
                         />
                     </View>
                 </View>
-                <TouchableOpacity style={styles.buttonSubmit} onPress={() => this.signUpUser(this.state.email, this.state.password)}>
-                    <Text style={styles.buttonSubmitText}>Register</Text>
-                </TouchableOpacity >
+                <View style={styles.loginAndRegister}>
+                    <TouchableOpacity style={styles.buttonSubmit} onPress={() => this.signUpUser(this.state.email, this.state.password)}>
+                        <Text style={styles.buttonSubmitText}>Register</Text>
+                    </TouchableOpacity >
+                    <Text style={styles.registerHere} onPress={() => this.props.navigation.navigate('Login')}>Sign in here</Text>
+                </View>
                 <View style={styles.lineContent}>
                     <View style={styles.line}></View>
                     <Text style={styles.orText}>Or</Text>
@@ -123,15 +152,13 @@ export default class Register extends React.Component{
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        flexDirection: 'column',
         backgroundColor: '#fff',
         alignItems: 'center',
-        justifyContent: 'center',
-    },
-    content: {
-        flexDirection: 'column',
-        //backgroundColor: '#000',
-        //height: 600,
         justifyContent: 'space-between',
+        height:'100%',
+        width:'100%',
+
     },
     input: {
         height: 40,
@@ -141,7 +168,6 @@ const styles = StyleSheet.create({
         marginTop: 15,
         width: '90%',
         alignSelf: 'center',
-        marginBottom: 30
     },
     searchIcon: {
         padding: 8,
@@ -153,6 +179,10 @@ const styles = StyleSheet.create({
         marginBottom: 20,
         opacity: 0.5,
     },
+    loginAndRegister: {
+        flexDirection: 'column',
+        width: '100%'
+    },
     buttonSubmit: {
         backgroundColor: "#5780D9",
         paddingLeft: 12,
@@ -161,7 +191,7 @@ const styles = StyleSheet.create({
         height: 50,
         justifyContent: 'center',
         alignSelf: 'center',
-        marginBottom: 30
+        marginBottom: 15
     },
     buttonSubmitText: {
         fontSize: 14,
@@ -176,7 +206,6 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignSelf: 'center',
         opacity: 0.2,
-        marginBottom: 30
     },
     line: {
         borderColor: '#a9a9a1',
@@ -192,7 +221,6 @@ const styles = StyleSheet.create({
         width: '90%',
         justifyContent: 'space-between',
         alignSelf: 'center',
-        marginBottom: 30
     },
     googleButton: {
         backgroundColor: "#d93433",
@@ -218,6 +246,18 @@ const styles = StyleSheet.create({
     footerContainer: {
         width: '100%',
         alignItems: 'center',
-        opacity: 0.3
+        opacity: 0.3,
+        marginBottom: 20
+    },
+    imageAuth: {
+        width: '90%',
+        height: 150,
+        alignSelf: 'center',
+        marginTop: 20
+    },
+    registerHere: {
+        textDecorationLine: 'underline',
+        textAlign: 'center',
+        opacity: 0.3,
     }
 });

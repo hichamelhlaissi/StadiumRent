@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@expo/vector-icons": "latest",
+    "@firebase/firestore": "^1.12.2",
     "@react-native-community/datetimepicker": "^2.1.0",
     "@react-native-community/geolocation": "^2.0.2",
     "@react-native-community/masked-view": "^0.1.5",
