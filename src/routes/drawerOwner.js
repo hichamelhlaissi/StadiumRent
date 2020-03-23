@@ -11,6 +11,7 @@ import MyStaduimsStack from "./MyStaduimsStack";
 import ScheduleStack from "./ScheduleStack";
 import {StyleSheet, Text, View, FlatList, TouchableOpacity, Image, Button} from 'react-native';
 import {Container, Header, Body, Content} from 'native-base';
+import {auth} from "../services/FireBaseConfig";
 
 
 
@@ -40,6 +41,10 @@ const RootDrawerOwnerNavigator = createDrawerNavigator({
             </Header>
             <Content style={{backgroundColor: '#ffffff'}}>
                 <DrawerItems {...props} />
+                <Button
+                    title="Sign out"
+                    onPress={() => auth.signOut()}
+                />
             </Content>
         </Container>
     ),

@@ -1,26 +1,11 @@
 import React from 'react'
-import {Text, View, Animated, StyleSheet, Image, TextInput, TouchableOpacity, Alert} from 'react-native'
+import {Text, View, Animated, StyleSheet, Image, TextInput, TouchableOpacity, Alert, Modal} from 'react-native'
 import StickyParallaxHeader from 'react-native-sticky-parallax-header'
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import { SocialIcon } from 'react-native-elements'
 //import {auth} from '../services/FireBaseConfig'
 import {auth, db} from '../services/FireBaseConfig'
 import {APPROX_STATUSBAR_HEIGHT} from "react-native-paper/src/constants";
-// import * as firebase from "firebase";
-// import 'firebase/firestore';
-//
-// const firebaseConfig = {
-//     apiKey: "AIzaSyBrYOM8z6ZwVZeduTQ98sY1KlkcwBW_lbI",
-//     authDomain: "stadiumrent.firebaseapp.com",
-//     databaseURL: "https://stadiumrent.firebaseio.com",
-//     projectId: "stadiumrent",
-//     storageBucket: "stadiumrent.appspot.com",
-//     messagingSenderId: "883002894442",
-//     appId: "1:883002894442:web:d87612cc26cf15df570213",
-//     measurementId: "G-3Q4C94Q1B4"
-// };
-// // Initialize Firebase
-// firebase.initializeApp(firebaseConfig);
 
 
 
@@ -32,8 +17,11 @@ export default class Register extends React.Component{
             email: "",
             username: "",
             password: "",
-            userType: "userResponsible",
-            happy: true
+            userType: "userNormal",
+            happy: true,
+            modalVisible: false,
+            error:null
+
         };
     }
 
@@ -48,30 +36,32 @@ export default class Register extends React.Component{
     };
     signUpUser = (email, password, props) => {
         props = this.props;
-        try {
-            if (this.state.password.length < 6) {
-                alert("please enter atleast 6 characters")
-            }
+
+
             auth.createUserWithEmailAndPassword(email, password).then(user => {
                 db.ref('/users').push({
                     uid: user.user.uid,
                     userType: this.state.userType,
-                    happy: this.state.happy
+                    happy: this.state.happy,
+                    email: user.user.email,
                 });
                 Alert.alert('Action!', 'L3azz');
-            })
-        }catch (error) {
-            console.log(error)
-        }
+            }).catch(error => this.setState({ error: error.message }))
+
 
     };
-
+    setModalVisible(visible) {
+        this.setState({modalVisible: visible});
+    }
 
     render(){
         return (
             <View style={styles.container}>
+
                 <Image style={styles.imageAuth} source={require('../../assets/Images/authImage.png')} />
+
                 <View style={styles.inputs}>
+                    <Text>{this.state.error}</Text>
                     <View style={styles.inputContainer}>
                         <Icon style={styles.searchIcon} name="user" size={20} color="#000"/>
                         <TextInput
@@ -90,7 +80,7 @@ export default class Register extends React.Component{
                         <TextInput
                             style={styles.input}
                             value={this.state.email}
-                            maxLength={22}
+                            maxLength={100}
                             placeholder="Email address"
                             underlineColorAndroid = "transparent"
                             placeholderTextColor = "#a9a9a1"
@@ -111,18 +101,19 @@ export default class Register extends React.Component{
                             autoCapitalize = "none"
                             onChangeText={(value) => { this.handlePassword(value)}}
                         />
+
                     </View>
                 </View>
                 <View style={styles.loginAndRegister}>
                     <TouchableOpacity style={styles.buttonSubmit} onPress={() => this.signUpUser(this.state.email, this.state.password)}>
                         <Text style={styles.buttonSubmitText}>Register</Text>
                     </TouchableOpacity >
-                    <Text style={styles.registerHere} onPress={() => this.props.navigation.navigate('Login')}>Sign in here</Text>
+                    <Text style={styles.registerHere} onPress={() => this.props.CloseModal()}>Sign in here</Text>
                 </View>
                 <View style={styles.lineContent}>
-                    <View style={styles.line}></View>
+                    <View style={styles.line}/>
                     <Text style={styles.orText}>Or</Text>
-                    <View style={styles.line}></View>
+                    <View style={styles.line}/>
                 </View>
                 <View style={styles.socialButtonsContainer}>
                     <SocialIcon

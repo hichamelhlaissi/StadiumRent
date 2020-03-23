@@ -3,7 +3,7 @@ import {Text, View, Animated, StyleSheet, Image, TextInput, TouchableOpacity, Al
 import StickyParallaxHeader from 'react-native-sticky-parallax-header'
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import { SocialIcon } from 'react-native-elements'
-import {auth} from '../services/FireBaseConfig'
+import {auth, db} from '../services/FireBaseConfig'
 import {APPROX_STATUSBAR_HEIGHT} from "react-native-paper/src/constants";
 
 
@@ -47,13 +47,30 @@ SetData =(props , Change=()=>this.setState({isLoading: false}))=>{
     handlePassword(value){
         this.setState({password: value})
     };
-    loginUser = (email, password, props) => {
+    loginUser = (email, password, props, Change=()=>this.setState({isLoading: true})) => {
         props = this.props;
         try {
             auth.signInWithEmailAndPassword(email, password).then(function (user) {
-                 props.navigation.navigate('Home');
+                // let ref = db.ref("/users");
+                // let query = ref.orderByChild("email").equalTo(email);
+                // query.once("value", function(snapshot) {
+                //     snapshot.forEach(function(child) {
+                //         console.log(child.val().userType);
+                //         //Change();
+                //         if (child.val().userType === 'userResponsible'){
+                //             console.log('ghaaaaaaaaaaaaaya');
+                //             props.navigation.navigate('MyStaduim');
+                //
+                //         }else {
+                //             console.log('wwwwwwwwwwwwwwwwwwwwwwwalo');
+                //             props.navigation.navigate('Home');
+                //
+                //         }
+                //     });
+                // });
 
-                //console.log(user)
+                    Change();
+
             })
         }catch (error) {
             alert("Email or password incorrect")
@@ -68,6 +85,8 @@ SetData =(props , Change=()=>this.setState({isLoading: false}))=>{
 
             );
         }
+
+
         return (
             <View style={styles.container}>
                 <Image style={styles.imageAuth} source={require('../../assets/Images/authImage.png')} />

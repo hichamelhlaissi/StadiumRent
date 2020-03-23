@@ -43,6 +43,10 @@ if (isLogged){
             "lat": 34.076353,
             "lng": -6.754076
         },
+        user:{},
+        userInfo:{},
+
+        dataSource:{},
         Data: {},
         location: null,
         errorMessage: null,
@@ -112,22 +116,10 @@ if (isLogged){
     };
 
     componentDidMount() {
-        this.getData();
+       // this.getRender();
 
     }
 
-    getData = ()=>{
-        db.ref('/todos').on('value', querySnapShot => {
-            let data = querySnapShot.val() ? querySnapShot.val() : {};
-            let todoItems = {...data};
-            let todosKey = Object.keys(todoItems);
-            this.setState({
-                Data: todoItems[todosKey],
-            });
-
-        });
-
-    };
 
     onCarouselItemChange = (index) => {
         let location = this.state.coordinates[index];

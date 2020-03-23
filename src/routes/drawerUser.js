@@ -12,16 +12,15 @@ import ScheduleStack from "./ScheduleStack";
 import LoginStack from "./LoginStack";
 import {StyleSheet, Text, View, FlatList, TouchableOpacity, Image, Button} from 'react-native';
 import {Container, Header, Body, Content} from 'native-base';
+import {auth, db} from '../services/FireBaseConfig';
+import App from "../../App";
+import {reload} from "expo/build/Updates/Updates";
+
 
 
 
 const RootDrawerNavigator = createDrawerNavigator({
-    Login: {
-        screen: LoginStack,
-        navigationOptions: {
-            drawerLabel: () => null
-        }
-    },
+
     Home: {
         screen: HomeStack,
     },
@@ -52,15 +51,25 @@ const RootDrawerNavigator = createDrawerNavigator({
             </Header>
             <Content style={{backgroundColor: '#ffffff'}}>
                     <DrawerItems {...props} />
+                <Button
+                    title="Sign out"
+                    onPress={() =>{
+                        auth.signOut().then(function() {
+
+                        }).catch(function(error) {
+                            alert('error : ', error)
+                        });
+                    }}
+                />
             </Content>
         </Container>
     ),
     drawerOpenRoute: 'DrawerOpen',
     drawerCloseRoute: 'DrawerClose',
     drawerToggleRoute: 'DrawerToggle',
-    initialRouteName: 'Login',
-});
+    initialRouteName: 'Home',
 
+});
 export default createAppContainer(RootDrawerNavigator);
 
 const styles = StyleSheet.create({
