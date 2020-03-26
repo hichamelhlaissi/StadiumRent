@@ -51,16 +51,17 @@ const RootDrawerNavigator = createDrawerNavigator({
             </Header>
             <Content style={{backgroundColor: '#ffffff'}}>
                     <DrawerItems {...props} />
-                <Button
-                    title="Sign out"
-                    onPress={() =>{
-                        auth.signOut().then(function() {
-
-                        }).catch(function(error) {
-                            alert('error : ', error)
-                        });
-                    }}
-                />
+                {/*<Button*/}
+                {/*    title="Sign out"*/}
+                {/*    onPress={() =>{*/}
+                {/*        auth.signOut().then(function() {*/}
+                {/*            props.navigation.navigate('App');*/}
+                {/*            console.log('logout')*/}
+                {/*        }).catch(function(error) {*/}
+                {/*            alert('error : ', error)*/}
+                {/*        });*/}
+                {/*    }}*/}
+                {/*/>*/}
             </Content>
         </Container>
     ),
