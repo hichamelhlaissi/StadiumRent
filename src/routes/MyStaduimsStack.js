@@ -5,6 +5,7 @@ import React from 'react';
 import addNewStadium from "../screens/ManageStaduim/MyStadiums/addNewStadium";
 import TermsAndConditions from "../screens/ManageStaduim/MyStadiums/TermsAndConditions";
 import stadiumLocation from '../screens/ManageStaduim/MyStadiums/stadiumLocation';
+import stadiumProgram from "../screens/ManageStaduim/MyStadiums/nextWeekProgram/stadiumProgram";
 
 const screens = {
     MyStaduim:{
@@ -31,6 +32,12 @@ const screens = {
         screen: stadiumLocation,
         navigationOptions: {
             title: 'Stadium location',
+        }
+    },
+    stadiumProgram: {
+        screen: stadiumProgram,
+        navigationOptions: {
+            title: 'Stadium Program',
         }
     },
 

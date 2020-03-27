@@ -1,39 +1,130 @@
 import React from 'react';
-import {Alert, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {Alert, Image, KeyboardAvoidingView, ScrollView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import Icon from 'react-native-vector-icons/Entypo';
+import {auth, db, storage} from './../../../services/FireBaseConfig';
+
 
 export default class MyStaduims extends React.Component{
-    state = {
-        name: "",
-        responsible: "",
-        address: "",
-        phone: "",
-        payment: "",
-        status: "",
+    constructor(props){
+        super(props);
+        this.state = {
+            stadiums: [],
+            isLoading: true,
+        };
+    }
+
+    componentDidMount() {
+        this.getStadiums();
+        this.setState({isLoading: false});
+    }
+
+    getStadiums=  (Data,Change=()=>{this.setState({stadiums: Data})})=> {
+
+        if (auth.currentUser === null){
+            console.log(auth.currentUser);
+        }else {
+            let ref = db.ref("/stadiums");
+            let query = ref.orderByChild("uid").equalTo(auth.currentUser.uid);
+            query.once("value", function (snapshot) {
+                snapshot.forEach(function (child) {
+                    Data = child.val();
+                    Change();
+                    //console.log(child.val())
+                });
+            });
+        }
     };
+
+    // CardList = ({stadiums: {stadiums: images, responsibleName, stadiumName, stadiumAddress, phoneNumber, status, payment}, id}) => {
+    //     return(
+    //         <View style={styles.cardStyle}>
+    //             <View>
+    //                 <Text style={styles.name}><Icon name="vinyl" size={22} color="#5780D9" /> {stadiumName}</Text>
+    //                 <View style={styles.infos}>
+    //                     <Text>Responsible : <Text style={{color: '#9b9b9b'}}>{responsibleName}</Text></Text>
+    //                     <Text>Address : <Text style={{color: '#9b9b9b'}}>{stadiumAddress}</Text></Text>
+    //                     <Text>Phone number : <Text style={{color: '#9b9b9b'}}>{phoneNumber}</Text></Text>
+    //                     <Text>Payment : <Text style={{color: '#9b9b9b'}}>{payment}</Text></Text>
+    //                 </View>
+    //             </View>
+    //             <View style={styles.bottomView}>
+    //                 <Text style={{fontWeight: 'bold'}}>Status :
+    //                     {
+    //                         status === "Accepted"
+    //                             ? <Text style={{color: 'green'}}>
+    //                                 {status}
+    //                             </Text>
+    //                             : status === "On pending"
+    //                             ? <Text style={{color: '#FFAF50'}}>
+    //                                 {status}
+    //                             </Text>
+    //                             : <Text style={{color: 'red'}}>
+    //                                 {status}
+    //                             </Text>
+    //                     }
+    //                 </Text>
+    //                 <TouchableOpacity style={styles.buttons} onPress={() => this.props.navigation.navigate('stadiumProgram')}>
+    //                     <Text style={styles.buttonsText}>Add scheduled to the next week</Text>
+    //                 </TouchableOpacity >
+    //             </View>
+    //         </View>
+    //     )
+    // };
+
     render() {
+        console.log(this.state.stadiums);
+        console.log(this.state.stadiums.length)
+        let allStadiums = this.state.stadiums;
         return (
             <View style={styles.container}>
-                <View style={styles.cardStyle}>
-                    <View>
-                        <Text style={styles.name}><Icon name="vinyl" size={22} color="#5780D9" /> {this.state.name}</Text>
-                        <View style={styles.infos}>
-                            <Text>Responsible : <Text style={{color: '#9b9b9b'}}>{this.state.responsible}</Text></Text>
-                            <Text>Address : <Text style={{color: '#9b9b9b'}}>{this.state.address}</Text></Text>
-                            <Text>Phone number : <Text style={{color: '#9b9b9b'}}>{this.state.phone}</Text></Text>
-                            <Text>Payment : <Text style={{color: '#9b9b9b'}}>{this.state.payment}</Text></Text>
-                        </View>
-                    </View>
-                    <View style={styles.bottomView}>
-                        <Text style={{fontWeight: 'bold'}}>Status : <Text style={{color: 'green'}}>Accepted</Text></Text>
-                        <TouchableOpacity style={styles.buttons} onPress={() => Alert.alert('Action!','Edit')}>
-                            <Text style={styles.buttonsText}>Add scheduled to the next week</Text>
-                        </TouchableOpacity >
-                    </View>
-                </View>
+                <ScrollView>
+                {
+                    this.state.isLoading ? <View style={styles.isLoading}><Image source={require('../../../../assets/Images/spinner.gif')}/></View>
+                        :
+                        this.state.stadiums.length > 0
+                            ? this.state.stadiums.map((stadium, i) => {
+                                return (
+                                        <View style={styles.cardStyle} key={i}>
+                                            <View>
+                                                <Text style={styles.name}><Icon name="vinyl" size={22} color="#5780D9" /> {stadium.stadiumName}</Text>
+                                                <View style={styles.infos}>
+                                                    <Text>Responsible : <Text style={{color: '#9b9b9b'}}>{stadium.responsibleName}</Text></Text>
+                                                    <Text>Address : <Text style={{color: '#9b9b9b'}}>{stadium.stadiumAddress}</Text></Text>
+                                                    <Text>Phone number : <Text style={{color: '#9b9b9b'}}>{stadium.phoneNumber}</Text></Text>
+                                                    <Text>Payment : <Text style={{color: '#9b9b9b'}}>{stadium.payment}</Text></Text>
+                                                </View>
+                                            </View>
+                                            <View style={styles.bottomView}>
+                                                <Text style={{fontWeight: 'bold'}}>Status :
+                                                    {
+                                                        stadium.status === "Accepted"
+                                                            ? <Text style={{color: 'green'}}>
+                                                                {stadium.status}
+                                                            </Text>
+                                                            : stadium.status === "On pending"
+                                                            ? <Text style={{color: '#FFAF50'}}>
+                                                                {stadium.status.status}
+                                                            </Text>
+                                                            : <Text style={{color: 'red'}}>
+                                                                {stadium.status}
+                                                            </Text>
+                                                    }
+                                                </Text>
+                                                <TouchableOpacity style={styles.buttons} onPress={() => this.props.navigation.navigate('stadiumProgram')}>
+                                                    <Text style={styles.buttonsText}>Add scheduled to the next week</Text>
+                                                </TouchableOpacity >
+                                            </View>
+                                        </View>
+                                )
+                            })
+                            :
+                                <View style={styles.noStadiums}><Text>You have no stadium to see</Text></View>
+
+                }
                 <TouchableOpacity style={styles.addNewStadiumButton} onPress={() => this.props.navigation.navigate('addNewStadium')}>
                     <Text style={styles.addNewStadiumButtonText}>Add new stadium</Text>
                 </TouchableOpacity >
+                </ScrollView>
             </View>
         );
     }
@@ -45,16 +136,19 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         flexDirection: 'column',
-        justifyContent: 'space-between',
+        //justifyContent: 'center',
         backgroundColor: '#fff',
-        alignItems: 'center',
+    },
+    cardList: {
+        width: '95%',
+        alignSelf: 'center',
     },
     cardStyle: {
         flexDirection: 'column',
         justifyContent: 'space-between',
         backgroundColor: '#dcdcdc',
         height: 180,
-        width: "95%",
+        width: "100%",
         alignSelf: 'center',
         marginTop: 10,
         borderRadius: 30/2,
@@ -107,5 +201,16 @@ const styles = StyleSheet.create({
         textTransform: "uppercase",
         textAlign: "center",
         fontWeight: 'bold',
+    },
+    noStadiums : {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    isLoading: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
     }
 });
+

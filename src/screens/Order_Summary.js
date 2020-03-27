@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
     },
     ConfirmButton: {
         marginTop: 324,
-        backgroundColor: '#ff4ee1',
+        backgroundColor: '#5780D9',
         height:50,
         width:'100%',
         borderRadius: 5,

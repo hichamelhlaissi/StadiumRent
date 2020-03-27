@@ -13,16 +13,18 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import * as  ImagePicker from 'expo-image-picker';
-import {storage} from './../../../services/FireBaseConfig';
+import {auth, db, storage} from './../../../services/FireBaseConfig';
 import CheckBox from 'react-native-check-box'
 import Geocoder from "react-native-geocoding";
 import {APPROX_STATUSBAR_HEIGHT} from "react-native-paper/src/constants";
+import Spinner from 'react-native-loading-spinner-overlay';
 
 
 
 export default class addNewStadium extends React.Component{
     state = {
         images: [],
+        imagesDb: [],
         imageName: "",
         isChecked: false,
         description: "",
@@ -33,7 +35,12 @@ export default class addNewStadium extends React.Component{
         test: {
             lat: 1,
             lng: 1,
-        }
+        },
+        longitude: null,
+        latitude: null,
+        isLoading: false,
+        status: "On pending",
+        payment: "Monthly"
     };
     constructor(props) {
         super(props);
@@ -90,24 +97,59 @@ export default class addNewStadium extends React.Component{
         this.setState({responsibleName: value})
     };
     handlePhoneNumber(value){
-        this.setState({phoneNumber: value})
+        let newText = '';
+        let numbers = '0123456789';
+        for (var i=0; i < value.length; i++) {
+            if(numbers.indexOf(value[i]) > -1 ) {
+                newText = newText + value[i];
+            }
+            else {
+                // your call back function
+                Alert.alert("Attention", "please enter numbers only");
+            }
+        }
+        this.setState({phoneNumber: newText})
     };
     goChooseStadiumLocation(){
         this.props.navigation.navigate('stadiumLocation');
     };
     onAllDone(){
-        if (this.state.stadiumName === "" || this.state.responsibleName === "" || this.state.phoneNumber === "" || this.state.stadiumAddress === "" || this.state.description === "" || Object.keys(this.state.images).length   === 0){
-            Alert.alert('Attention!!', 'Please fill all the fields');
+        if (this.state.stadiumName === "" || this.state.responsibleName === "" || this.state.phoneNumber === "" || this.state.stadiumAddress === "" || Object.keys(this.state.images).length   === 0){
+            Alert.alert('Attention!!', 'Please fill the required fields.. All the fields are required except: description');
         }else if(!this.state.isChecked){
             Alert.alert('Please accept our terms and conditions to continue');
         } else {
-            console.log("Stadium name: "+this.state.stadiumName+" // Responsible name: "+this.state.responsibleName+" // Phone number: "+this.state.phoneNumber+" // Address: "+this.state.stadiumAddress+" // Description: "+this.state.description);
-            console.log(this.state.images)
+            // console.log("Stadium name: "+this.state.stadiumName+" // Responsible name: "+this.state.responsibleName+" // Phone number: "+this.state.phoneNumber+" // Address: "+this.state.stadiumAddress+" // Description: "+this.state.description);
+            // console.log(this.state.images)
+            this.state.isLoading = true;
+            for (let image of this.state.images){
+                //console.log(image.name);
+                    this.uploadImage(image.uri, image.name);
+                    this.state.imagesDb.push({file: image.name+auth.currentUser.uid});
+            }
+            db.ref('/stadiums').push({
+                uid: auth.currentUser.uid,
+                stadiumName: this.state.stadiumName,
+                responsibleName: this.state.responsibleName,
+                phoneNumber: this.state.phoneNumber,
+                stadiumAddress: this.state.stadiumAddress,
+                description: this.state.description,
+                status: this.state.status,
+                images: this.state.imagesDb,
+                payment: this.state.payment,
+                latitude: this.state.latitude,
+                longitude: this.state.longitude,
+            }).then(data => {
+                this.state.isLoading = false;
+                this.props.navigation.navigate('MyStaduim')
+            });
         }
     };
     render() {
         if (this.props.navigation.getParam('data2') !== undefined){
             let data2 = this.props.navigation.getParam('data2');
+            this.state.longitude = data2.lng;
+            this.state.latitude = data2.lat;
             //this.state.test = data2;
             Geocoder.init("AIzaSyCoIzI4JvkT0MjvaBXH-OSt6d6pYuU1dMg");
             Geocoder.from(data2.lat, data2.lng).then(json => {
@@ -121,6 +163,11 @@ export default class addNewStadium extends React.Component{
         }
         return (
             <View style={styles.container}>
+                <Spinner
+                    visible={this.state.isLoading}
+                    textContent={'Loading...'}
+                    textStyle={styles.spinnerTextStyle}
+                />
                 <ScrollView>
                     <KeyboardAvoidingView behavior="position">
                         <View style={{flexDirection: 'column',
@@ -150,6 +197,7 @@ export default class addNewStadium extends React.Component{
                         style={styles.input}
                         value={this.state.phoneNumber}
                         maxLength={22}
+                        keyboardType={'numeric'}
                         placeholder="Phone number"
                         underlineColorAndroid = "transparent"
                         placeholderTextColor = "#a9a9a1"
@@ -245,6 +293,8 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#fff',
         //marginTop: APPROX_STATUSBAR_HEIGHT,
+        //justifyContent: 'center',
+        //alignItems: 'center',
     },
     input: {
         height: 40,
@@ -254,7 +304,7 @@ const styles = StyleSheet.create({
         opacity: 0.5,
         width: "100%",
         alignSelf: 'center',
-        marginBottom: 8
+        marginBottom: 8,
     },
     imageInput: {
         height: 40,
@@ -332,5 +382,8 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         width: '92%',
         marginTop: 8
-    }
+    },
+    spinnerTextStyle: {
+        color: '#ffffff'
+    },
 });
