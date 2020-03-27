@@ -7,15 +7,9 @@ import ProfileStack from "./ProfileStack";
 import OrdersStack from "./OrdersStack";
 import FavoriteStadiumsStack from "./FavoriteStadiumsStack";
 import SubscriptionsStack from "./SubscriptionsStack";
-import MyStaduimsStack from "./MyStaduimsStack";
-import ScheduleStack from "./ScheduleStack";
-import LoginStack from "./LoginStack";
 import {StyleSheet, Text, View, FlatList, TouchableOpacity, Image, Button} from 'react-native';
 import {Container, Header, Body, Content} from 'native-base';
 import {auth, db} from '../services/FireBaseConfig';
-import App from "../../App";
-import {reload} from "expo/build/Updates/Updates";
-import {Restart} from 'fiction-expo-restart';
 import { Updates } from 'expo';
 
 
@@ -50,7 +44,6 @@ const RootDrawerNavigator = createDrawerNavigator({
             </Header>
             <Content style={{backgroundColor: '#ffffff'}}>
                     <DrawerItems {...props} />
-<<<<<<< HEAD
                 <Button
                     title="Sign out"
                     onPress={() =>{
@@ -61,19 +54,6 @@ const RootDrawerNavigator = createDrawerNavigator({
                         });
                     }}
                 />
-=======
-                {/*<Button*/}
-                {/*    title="Sign out"*/}
-                {/*    onPress={() =>{*/}
-                {/*        auth.signOut().then(function() {*/}
-                {/*            props.navigation.navigate('App');*/}
-                {/*            console.log('logout')*/}
-                {/*        }).catch(function(error) {*/}
-                {/*            alert('error : ', error)*/}
-                {/*        });*/}
-                {/*    }}*/}
-                {/*/>*/}
->>>>>>> d5e604e0644fa27e44718cce314514033276f63b
             </Content>
         </Container>
     ),

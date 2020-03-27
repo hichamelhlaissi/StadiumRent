@@ -12,11 +12,8 @@ import ScheduleStack from "./ScheduleStack";
 import {StyleSheet, Text, View, FlatList, TouchableOpacity, Image, Button} from 'react-native';
 import {Container, Header, Body, Content} from 'native-base';
 import {auth} from "../services/FireBaseConfig";
-<<<<<<< HEAD
 import {Updates} from "expo";
-=======
 //import AppStack from "./AppStack";
->>>>>>> d5e604e0644fa27e44718cce314514033276f63b
 
 
 
@@ -49,7 +46,7 @@ const RootDrawerOwnerNavigator = createDrawerNavigator({
             </Header>
             <Content style={{backgroundColor: '#ffffff'}}>
                 <DrawerItems {...props} />
-<<<<<<< HEAD
+
                 <Button
                     title="Sign out"
                     onPress={() =>{
@@ -60,20 +57,7 @@ const RootDrawerOwnerNavigator = createDrawerNavigator({
                         });
                     }}
                 />
-=======
-                {/*<Button*/}
-                {/*    title="Sign out"*/}
-                {/*    onPress={() =>{*/}
-                {/*        auth.signOut().then(function() {*/}
-                {/*            props.navigation.navigate('App');*/}
-                {/*            console.log('logout');*/}
-                {/*            //console.log(auth.currentUser)*/}
-                {/*        }).catch(function(error) {*/}
-                {/*            alert('error : ', error)*/}
-                {/*        });*/}
-                {/*    }}*/}
-                {/*/>*/}
->>>>>>> d5e604e0644fa27e44718cce314514033276f63b
+
             </Content>
         </Container>
     ),

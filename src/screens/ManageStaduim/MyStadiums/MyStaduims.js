@@ -5,7 +5,7 @@ import {auth, db, storage} from './../../../services/FireBaseConfig';
 
 
 export default class MyStaduims extends React.Component{
-    constructor(props){
+    constructor(props) {
         super(props);
         this.state = {
             stadiums: [],
@@ -13,117 +13,97 @@ export default class MyStaduims extends React.Component{
         };
     }
 
+    getStadiums=  (Data,Change=()=>{this.setState({stadiums: Data, isLoading:false})})=> {
+    setTimeout(function(){
+    if (auth.currentUser === null){
+        console.log(auth.currentUser);
+    }else {
+        let ref = db.ref("/stadiums");
+        let query = ref.orderByChild("uid").equalTo(auth.currentUser.uid);
+        query.once("value", function (snapshot) {
+            snapshot.forEach(function (child) {
+                Data = snapshot.val();
+                Change();
+            });
+        });
+    }
+    }, 5000);
+};
+
     componentDidMount() {
+        const { navigation } = this.props;
+        this.focusListener = navigation.addListener('didFocus', () => {
+            this.setState({ stadiums: [],isLoading: true });
+            this.getStadiums();
+        });
         this.getStadiums();
-        this.setState({isLoading: false});
     }
 
-    getStadiums=  (Data,Change=()=>{this.setState({stadiums: Data})})=> {
-
-        if (auth.currentUser === null){
-            console.log(auth.currentUser);
-        }else {
-            let ref = db.ref("/stadiums");
-            let query = ref.orderByChild("uid").equalTo(auth.currentUser.uid);
-            query.once("value", function (snapshot) {
-                snapshot.forEach(function (child) {
-                    Data = child.val();
-                    Change();
-                    //console.log(child.val())
-                });
-            });
-        }
+    componentWillUnmount() {
+        this.focusListener.remove();
+    }
+    CardList = ({stadiums: {stadiums: images, responsibleName, stadiumName, stadiumAddress, phoneNumber, status, payment}, id}) => {
+        return(
+            <View style={styles.cardStyle}>
+                <View>
+                    <Text style={styles.name}><Icon name="vinyl" size={22} color="#5780D9" /> {stadiumName}</Text>
+                    <View style={styles.infos}>
+                        <Text>Responsible : <Text style={{color: '#9b9b9b'}}>{responsibleName}</Text></Text>
+                        <Text>Address : <Text style={{color: '#9b9b9b'}}>{stadiumAddress}</Text></Text>
+                        <Text>Phone number : <Text style={{color: '#9b9b9b'}}>{phoneNumber}</Text></Text>
+                        <Text>Payment : <Text style={{color: '#9b9b9b'}}>{payment}</Text></Text>
+                    </View>
+                </View>
+                <View style={styles.bottomView}>
+                    <Text style={{fontWeight: 'bold'}}>Status :
+                        {
+                            status === "Accepted"
+                                ? <Text style={{color: 'green'}}>
+                                    {status}
+                                </Text>
+                                : status === "On pending"
+                                ? <Text style={{color: '#FFAF50'}}>
+                                    {status}
+                                </Text>
+                                : <Text style={{color: 'red'}}>
+                                    {status}
+                                </Text>
+                        }
+                    </Text>
+                    <TouchableOpacity style={styles.buttons} onPress={() => this.props.navigation.navigate('stadiumProgram')}>
+                        <Text style={styles.buttonsText}>Add scheduled to the next week</Text>
+                    </TouchableOpacity >
+                </View>
+            </View>
+        )
     };
-
-    // CardList = ({stadiums: {stadiums: images, responsibleName, stadiumName, stadiumAddress, phoneNumber, status, payment}, id}) => {
-    //     return(
-    //         <View style={styles.cardStyle}>
-    //             <View>
-    //                 <Text style={styles.name}><Icon name="vinyl" size={22} color="#5780D9" /> {stadiumName}</Text>
-    //                 <View style={styles.infos}>
-    //                     <Text>Responsible : <Text style={{color: '#9b9b9b'}}>{responsibleName}</Text></Text>
-    //                     <Text>Address : <Text style={{color: '#9b9b9b'}}>{stadiumAddress}</Text></Text>
-    //                     <Text>Phone number : <Text style={{color: '#9b9b9b'}}>{phoneNumber}</Text></Text>
-    //                     <Text>Payment : <Text style={{color: '#9b9b9b'}}>{payment}</Text></Text>
-    //                 </View>
-    //             </View>
-    //             <View style={styles.bottomView}>
-    //                 <Text style={{fontWeight: 'bold'}}>Status :
-    //                     {
-    //                         status === "Accepted"
-    //                             ? <Text style={{color: 'green'}}>
-    //                                 {status}
-    //                             </Text>
-    //                             : status === "On pending"
-    //                             ? <Text style={{color: '#FFAF50'}}>
-    //                                 {status}
-    //                             </Text>
-    //                             : <Text style={{color: 'red'}}>
-    //                                 {status}
-    //                             </Text>
-    //                     }
-    //                 </Text>
-    //                 <TouchableOpacity style={styles.buttons} onPress={() => this.props.navigation.navigate('stadiumProgram')}>
-    //                     <Text style={styles.buttonsText}>Add scheduled to the next week</Text>
-    //                 </TouchableOpacity >
-    //             </View>
-    //         </View>
-    //     )
-    // };
-
     render() {
-        console.log(this.state.stadiums);
-        console.log(this.state.stadiums.length)
-        let allStadiums = this.state.stadiums;
+        let stadiumsKeys = Object.keys(this.state.stadiums);
         return (
             <View style={styles.container}>
                 <ScrollView>
-                {
-                    this.state.isLoading ? <View style={styles.isLoading}><Image source={require('../../../../assets/Images/spinner.gif')}/></View>
-                        :
-                        this.state.stadiums.length > 0
-                            ? this.state.stadiums.map((stadium, i) => {
-                                return (
-                                        <View style={styles.cardStyle} key={i}>
-                                            <View>
-                                                <Text style={styles.name}><Icon name="vinyl" size={22} color="#5780D9" /> {stadium.stadiumName}</Text>
-                                                <View style={styles.infos}>
-                                                    <Text>Responsible : <Text style={{color: '#9b9b9b'}}>{stadium.responsibleName}</Text></Text>
-                                                    <Text>Address : <Text style={{color: '#9b9b9b'}}>{stadium.stadiumAddress}</Text></Text>
-                                                    <Text>Phone number : <Text style={{color: '#9b9b9b'}}>{stadium.phoneNumber}</Text></Text>
-                                                    <Text>Payment : <Text style={{color: '#9b9b9b'}}>{stadium.payment}</Text></Text>
-                                                </View>
-                                            </View>
-                                            <View style={styles.bottomView}>
-                                                <Text style={{fontWeight: 'bold'}}>Status :
-                                                    {
-                                                        stadium.status === "Accepted"
-                                                            ? <Text style={{color: 'green'}}>
-                                                                {stadium.status}
-                                                            </Text>
-                                                            : stadium.status === "On pending"
-                                                            ? <Text style={{color: '#FFAF50'}}>
-                                                                {stadium.status.status}
-                                                            </Text>
-                                                            : <Text style={{color: 'red'}}>
-                                                                {stadium.status}
-                                                            </Text>
-                                                    }
-                                                </Text>
-                                                <TouchableOpacity style={styles.buttons} onPress={() => this.props.navigation.navigate('stadiumProgram')}>
-                                                    <Text style={styles.buttonsText}>Add scheduled to the next week</Text>
-                                                </TouchableOpacity >
-                                            </View>
-                                        </View>
-                                )
-                            })
+                    {
+                        this.state.isLoading ? <View style={styles.isLoading}><Image source={require('../../../../assets/Images/spinner.gif')}/></View>
                             :
-                                <View style={styles.noStadiums}><Text>You have no stadium to see</Text></View>
-
-                }
-                <TouchableOpacity style={styles.addNewStadiumButton} onPress={() => this.props.navigation.navigate('addNewStadium')}>
-                    <Text style={styles.addNewStadiumButtonText}>Add new stadium</Text>
-                </TouchableOpacity >
+                            stadiumsKeys.length > 0
+                                ? stadiumsKeys.map(key => {
+                                    return (
+                                        <View style={styles.cardList} key={key}>
+                                            <this.CardList
+                                                stadiums={this.state.stadiums[key]}
+                                                id={key}
+                                            />
+                                        </View>
+                                    )
+                                })
+                                :
+                                stadiumsKeys.length > 0
+                                    ? <View style={styles.noStadiums}><Text>You have no stadium to see</Text></View>
+                                    : <View></View>
+                    }
+                    <TouchableOpacity style={styles.addNewStadiumButton} onPress={() => this.props.navigation.navigate('addNewStadium')}>
+                        <Text style={styles.addNewStadiumButtonText}>Add new stadium</Text>
+                    </TouchableOpacity >
                 </ScrollView>
             </View>
         );
@@ -213,4 +193,3 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     }
 });
-

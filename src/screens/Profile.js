@@ -92,7 +92,7 @@ export default class Profile extends React.Component{
         user.reload().then(() => {
             console.log({emailVerified: user.emailVerified})
         });
-        this.setState({ Data: {}, refreshing:true, error:"",user: {}});
+        this.setState({ Data: {}, refreshing:true, error:"",user: {},First:"", Last:"", Phone:"", Keys:"", isEmailVerified:""});
         //Call the Service to get the latest data
         this.GetProfile();
         this.IsEmailVerified();
@@ -153,7 +153,6 @@ export default class Profile extends React.Component{
             const errors=(error)=>{
                 this.setState({error:error})
             };
-
             const fct =()=>{
                 db.ref("users/"+this.state.keys).update({
                     FirstName: DataInput.FirstName,
@@ -289,7 +288,6 @@ export default class Profile extends React.Component{
         };
         return ref.put(blob);
     };
-
     render(){
         const CheckField = yup.object({
             userName: yup.string().required().max(40).min(5),
