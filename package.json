@@ -21,6 +21,7 @@
     "expo-intent-launcher": "^8.0.0",
     "expo-location": "latest",
     "expo-permissions": "latest",
+    "fiction-expo-restart": "^1.0.2",
     "firebase": "^7.10.0",
     "formik": "^2.1.4",
     "native-base": "^2.13.8",

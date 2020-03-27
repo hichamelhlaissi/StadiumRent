@@ -15,12 +15,11 @@ import {Container, Header, Body, Content} from 'native-base';
 import {auth, db} from '../services/FireBaseConfig';
 import App from "../../App";
 import {reload} from "expo/build/Updates/Updates";
-
-
+import {Restart} from 'fiction-expo-restart';
+import { Updates } from 'expo';
 
 
 const RootDrawerNavigator = createDrawerNavigator({
-
     Home: {
         screen: HomeStack,
     },
@@ -55,7 +54,7 @@ const RootDrawerNavigator = createDrawerNavigator({
                     title="Sign out"
                     onPress={() =>{
                         auth.signOut().then(function() {
-
+                            Updates.reload()
                         }).catch(function(error) {
                             alert('error : ', error)
                         });

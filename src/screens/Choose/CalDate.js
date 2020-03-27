@@ -15,6 +15,7 @@ const App = () => {
         setDate(currentDate);
 
         if (selectedDate !== undefined) {
+
             console.log(selectedDate);
         }if (selectedDate === undefined) {
             console.log("cancel")

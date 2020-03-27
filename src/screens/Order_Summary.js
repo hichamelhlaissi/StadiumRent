@@ -4,6 +4,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import ModalWrapper from "react-native-modal-wrapper";
 import {APPROX_STATUSBAR_HEIGHT} from "react-native-paper/src/constants";
 import StarRating from "react-native-star-rating";
+import {auth, db} from "../services/FireBaseConfig";
 
 export default class Order_Summary extends Component {
 
@@ -13,7 +14,30 @@ export default class Order_Summary extends Component {
     }
     state = {
         starCount: 3.7,
+        user:{},
+        Data:{},
     };
+    componentDidMount() {
+        this.GetUserData();
+    }
+
+    GetUserData =(dataUser, Change=()=>this.setState({Data:dataUser}))=>{
+        this.state.user = auth.currentUser;
+        let userCon = this.state.user.uid;
+        let ref = db.ref("/users");
+        console.log(userCon);
+        let query = ref.orderByChild("uid").equalTo(userCon);
+        query.once("value", function(snapshot, dataU) {
+            snapshot.forEach(function(child) {
+                console.log(child.val());
+                dataU = child.val();
+                dataUser = dataU;
+                Change();
+            });
+        });
+    };
+
+
 
     onStarRatingPress(rating) {
         this.setState({
@@ -21,6 +45,14 @@ export default class Order_Summary extends Component {
         });
     }
 
+    confirmOrder =()=>{
+
+        if ((this.state.Data.FirstName === "") || (this.state.Data.LastName === "") || (this.state.Data.Phone_Number === "")){
+            this.props.navigation.navigate('Profile')
+        }if ((this.state.Data.FirstName !== "") && (this.state.Data.LastName !== "") && (this.state.Data.Phone_Number !== "")){
+            this.props.navigation.navigate('RequestSent')
+        }
+    };
     render() {
         return (
             <View style={styles.container}>
@@ -70,7 +102,7 @@ export default class Order_Summary extends Component {
                     </View>
 
                 </View>
-                <TouchableOpacity style={styles.ConfirmButton}  onPress={() => this.props.navigation.navigate('RequestSent')}>
+                <TouchableOpacity style={styles.ConfirmButton}  onPress={() =>this.confirmOrder()}>
                     <Text style={{textAlign: 'center', fontSize: 30, color: '#fff',marginTop: 3,}}>CONFIRM</Text>
                 </TouchableOpacity >
 

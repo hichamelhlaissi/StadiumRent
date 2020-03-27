@@ -19,8 +19,6 @@ import {APPROX_STATUSBAR_HEIGHT} from "react-native-paper/src/constants";
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import {SocialIcon} from "react-native-elements";
 import Register from "./src/Authentification/Register";
-
-
 export default class App extends React.Component{
 
     constructor(){
@@ -50,13 +48,8 @@ export default class App extends React.Component{
     handlePassword(value){
         this.setState({password: value})
     };
-    SetData =(Change=()=>this.setState({isLoading: false}))=>{
-        setTimeout(function(){
-            Change();
-        }, 5000);
-    };
+
     componentDidMount() {
-        this.SetData();
         this.getNavigator();
     }
     loginUser = (email, password, props, Change=()=>this.getNavigator()) => {
@@ -66,29 +59,37 @@ export default class App extends React.Component{
                 Change();
             }).catch(error => this.setState({ error: error.message }))
     };
-    getNavigator=(Change=()=>this.setState({Data:'userResponsible'}), Change2=()=>this.setState({Data:'userNormal'}))=> {
-        if (auth.currentUser === null){
-            console.log(auth.currentUser);
-        }else {
-            this.state.user = auth.currentUser;
-            let userCon = this.state.user.uid;
-            let ref = db.ref("/users");
-            console.log(userCon);
-            let query = ref.orderByChild("uid").equalTo(userCon);
-            query.once("value", function(snapshot) {
-                snapshot.forEach(function(child) {
-                    console.log(child.val().userType);
-                    if (child.val().userType === 'userResponsible'){
-                        Change();
-                    }if (child.val().userType === 'userNormal'){
-                        Change2();
-                    }
 
+    getNavigator=  (Change=()=>this.setState({Data:'userResponsible',isLoading: false}), Change2=()=>this.setState({Data:'userNormal',isLoading: false}),
+                    Change3=()=>this.setState({isLoading: false})
+                    )=> {
+        setTimeout(function(){
+            if (auth.currentUser === null){
+                console.log(auth.currentUser);
+                Change3();
+            }else {
+
+                let userCon = auth.currentUser.uid;
+                let ref = db.ref("/users");
+                console.log(userCon);
+                let query = ref.orderByChild("uid").equalTo(userCon);
+                 query.once("value", function (snapshot) {
+                    snapshot.forEach(function (child) {
+                        console.log(child.val().userType);
+                        if (child.val().userType === 'userResponsible') {
+                            Change();
+                        }
+                        if (child.val().userType === 'userNormal') {
+                            Change2();
+                        }
+                    });
                 });
-            });
-        }
+            }
+        }, 5000);
+
     };
     render() {
+
         const CloseModal =()=>{
             this.setModalVisible(false);
         };
@@ -99,6 +100,7 @@ export default class App extends React.Component{
                 <ImageBackground source={require('./assets/Images/main.png')} style={{flex:1}}/>
             );
         }
+
         if (this.state.Data === 'userResponsible') {
             return <NavigatorOwner/>
         }if (this.state.Data === 'userNormal'){
@@ -121,7 +123,7 @@ export default class App extends React.Component{
                             <TextInput
                                 style={styles.input}
                                 value={this.state.email}
-                                maxLength={22}
+                                maxLength={55}
                                 placeholder="Email address"
                                 underlineColorAndroid = "transparent"
                                 placeholderTextColor = "#a9a9a1"
@@ -152,7 +154,6 @@ export default class App extends React.Component{
                             this.setModalVisible(true);
                         }}>Register here</Text>
                     </View>
-
                     <View style={styles.lineContent}>
                         <View style={styles.line}/>
                         <Text style={styles.orText}>Or</Text>
@@ -166,6 +167,7 @@ export default class App extends React.Component{
                             type='google'
                             onPress={() => Alert.alert("Google")}
                         />
+
                         <SocialIcon
                             title='Facebook'
                             style={styles.facebookButton}

@@ -12,6 +12,7 @@ import ScheduleStack from "./ScheduleStack";
 import {StyleSheet, Text, View, FlatList, TouchableOpacity, Image, Button} from 'react-native';
 import {Container, Header, Body, Content} from 'native-base';
 import {auth} from "../services/FireBaseConfig";
+import {Updates} from "expo";
 
 
 
@@ -43,7 +44,13 @@ const RootDrawerOwnerNavigator = createDrawerNavigator({
                 <DrawerItems {...props} />
                 <Button
                     title="Sign out"
-                    onPress={() => auth.signOut()}
+                    onPress={() =>{
+                        auth.signOut().then(function() {
+                            Updates.reload()
+                        }).catch(function(error) {
+                            alert('error : ', error)
+                        });
+                    }}
                 />
             </Content>
         </Container>
