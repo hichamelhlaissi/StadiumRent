@@ -13,7 +13,7 @@ export default class MyStaduims extends React.Component{
         };
     }
 
-    getStadiums=  (Data,Change=()=>{this.setState({stadiums: Data})})=> {
+    getStadiums=  (Data,Change=()=>{this.setState({stadiums: Data, isLoading:false})})=> {
     setTimeout(function(){
     if (auth.currentUser === null){
         console.log(auth.currentUser);
@@ -33,12 +33,10 @@ export default class MyStaduims extends React.Component{
     componentDidMount() {
         const { navigation } = this.props;
         this.focusListener = navigation.addListener('didFocus', () => {
-            this.setState({ stadiums: [],isLoading: true });
+            this.setState({ isLoading: true, stadiums: [] });
             this.getStadiums();
-            this.setState({isLoading:false})
         });
         this.getStadiums();
-        this.setState({isLoading:false})
     }
 
     componentWillUnmount() {
