@@ -13,7 +13,7 @@ export default class MyStaduims extends React.Component{
         };
     }
 
-    getStadiums=  (Data,Change=()=>{this.setState({stadiums: Data, isLoading:false})})=> {
+    getStadiums=  (Data,Change=()=>{this.setState({stadiums: Data})})=> {
     setTimeout(function(){
     if (auth.currentUser === null){
         console.log(auth.currentUser);
@@ -35,8 +35,10 @@ export default class MyStaduims extends React.Component{
         this.focusListener = navigation.addListener('didFocus', () => {
             this.setState({ stadiums: [],isLoading: true });
             this.getStadiums();
+            this.setState({isLoading:false})
         });
         this.getStadiums();
+        this.setState({isLoading:false})
     }
 
     componentWillUnmount() {
@@ -97,9 +99,7 @@ export default class MyStaduims extends React.Component{
                                     )
                                 })
                                 :
-                                stadiumsKeys.length > 0
-                                    ? <View style={styles.noStadiums}><Text>You have no stadium to see</Text></View>
-                                    : <View></View>
+                                <View style={styles.noStadiums}><Text>You have no stadium to see</Text></View>
                     }
                     <TouchableOpacity style={styles.addNewStadiumButton} onPress={() => this.props.navigation.navigate('addNewStadium')}>
                         <Text style={styles.addNewStadiumButtonText}>Add new stadium</Text>
