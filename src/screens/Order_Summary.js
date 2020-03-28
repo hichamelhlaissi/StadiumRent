@@ -1,5 +1,16 @@
 import React, { Component } from 'react';
-import {View, Text, StyleSheet, TouchableOpacity, Alert, TextInput, Button, Modal, TouchableHighlight} from 'react-native';
+import {
+    View,
+    Text,
+    StyleSheet,
+    TouchableOpacity,
+    Alert,
+    TextInput,
+    Button,
+    Modal,
+    TouchableHighlight,
+    ActivityIndicator
+} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import ModalWrapper from "react-native-modal-wrapper";
 import {APPROX_STATUSBAR_HEIGHT} from "react-native-paper/src/constants";
@@ -11,17 +22,31 @@ export default class Order_Summary extends Component {
     constructor(props){
         super(props);
         const {state} = props.navigation;
+        this.stadiumName = state.params.stadiumName;
+        this.Day = state.params.Day;
+        this.Hour = state.params.Hour;
+        this.IdResponsible=state.params.IdResponsible;
+        this.IdStaduim=state.params.IdStaduim;
+        this.state = {
+            starCount: 3.7,
+            user:{},
+            Data:{},
+            isEmailVerified:"",
+            isLoading: true,
+            error:"",
+        };
     }
-    state = {
-        starCount: 3.7,
-        user:{},
-        Data:{},
-    };
+
     componentDidMount() {
+        const { navigation } = this.props;
+        this.focusListener = navigation.addListener('didFocus', () => {
+            this.setState({Data:{}, isLoading: true,error:"", isEmailVerified:"",user:{}});
+            this.GetUserData();
+        });
         this.GetUserData();
     }
 
-    GetUserData =(dataUser, Change=()=>this.setState({Data:dataUser}))=>{
+    GetUserData =(dataUser,isEmailVerified, Change=()=>this.setState({Data:dataUser,isLoading:false}))=>{
         this.state.user = auth.currentUser;
         let userCon = this.state.user.uid;
         let ref = db.ref("/users");
@@ -29,7 +54,6 @@ export default class Order_Summary extends Component {
         let query = ref.orderByChild("uid").equalTo(userCon);
         query.once("value", function(snapshot, dataU) {
             snapshot.forEach(function(child) {
-                console.log(child.val());
                 dataU = child.val();
                 dataUser = dataU;
                 Change();
@@ -44,21 +68,54 @@ export default class Order_Summary extends Component {
             starCount: rating
         });
     }
-
-    confirmOrder =()=>{
-
-        if ((this.state.Data.FirstName === "") || (this.state.Data.LastName === "") || (this.state.Data.Phone_Number === "")){
-            this.props.navigation.navigate('Profile')
-        }if ((this.state.Data.FirstName !== "") && (this.state.Data.LastName !== "") && (this.state.Data.Phone_Number !== "")){
-            this.props.navigation.navigate('RequestSent')
+    confirmOrder =(props, Change=()=>this.setState({isLoading:false}), Sent=()=>this.props.navigation.navigate('RequestSent'))=>{
+        props = this.props;
+        this.setState({isLoading:true});
+        this.state.user = auth.currentUser;
+        console.log('isEmailVerified------',this.state.user.emailVerified);
+        if (auth.currentUser.uid !== ""){
+            if ((this.state.Data.FirstName === "") || (this.state.Data.LastName === "") || (this.state.Data.Phone_Number === "") || (!this.state.user.emailVerified)){
+                this.props.navigation.navigate('Profile');
+                this.setState({isLoading:false});
+            }if ((this.state.Data.FirstName !== "") && (this.state.Data.LastName !== "") && (this.state.Data.Phone_Number !== "") && (this.state.user.emailVerified)){
+                db.ref('/orders').push({
+                    uid: auth.currentUser.uid,
+                    IdResponsible: this.IdResponsible,
+                    IdStaduim: this.IdStaduim,
+                    Day: this.Day,
+                    Hour: this.Hour,
+                    Status:'Pending',
+                }, function (error) {
+                    if (error) {
+                        errors(error.message);
+                        Change();
+                    } else {
+                        console.log('success');
+                        Change();
+                        Sent();
+                    }
+                });
+            }
+        }else {
+            this.setState({error: 'Request denied, please re-login'})
         }
+        const errors=(error)=>{
+            this.setState({error:error})
+        };
     };
     render() {
+        if (this.state.isLoading) {
+            return (
+                <View style={{ flex: 1, padding: 20 }}>
+                    <ActivityIndicator />
+                </View>
+            );
+        }
         return (
             <View style={styles.container}>
                 <View style={styles.cardStyle}>
                     <View style={styles.infos}>
-                        <Text style={styles.name}>Soccer Dar Lhamra</Text>
+                        <Text style={styles.name}>{this.stadiumName}</Text>
                         <View style={styles.feedbacksView}>
                             <StarRating
                                 disabled={false}
@@ -89,10 +146,10 @@ export default class Order_Summary extends Component {
                     <View style={styles.infos}>
                         <Text style={styles.name}>Details</Text>
                         <View style={styles.status}>
-                            <Text style={styles.statusText}>Soccer Dar Lhamra</Text>
+                            <Text style={styles.statusText}>{this.stadiumName}</Text>
                         </View>
                         <View style={styles.startingPoint}>
-                            <Text style={[styles.startingPointText, {marginRight: 10}]}>14 -> 15 - Feb 26,2020</Text>
+                            <Text style={[styles.startingPointText, {marginRight: 10}]}>{this.Hour} - {this.Day}</Text>
                         </View>
                     </View>
                     <View style={styles.buttonsView}>
@@ -100,7 +157,7 @@ export default class Order_Summary extends Component {
                             <Text style={styles.buttonsText}>Change</Text>
                         </TouchableOpacity >
                     </View>
-
+                    <Text style={styles.errorText}>{this.state.error}</Text>
                 </View>
                 <TouchableOpacity style={styles.ConfirmButton}  onPress={() =>this.confirmOrder()}>
                     <Text style={{textAlign: 'center', fontSize: 30, color: '#fff',marginTop: 3,}}>CONFIRM</Text>
@@ -236,5 +293,10 @@ const styles = StyleSheet.create({
     },
     feedbacksView: {
         flexDirection: 'row',
+    },
+    errorText: {
+        color: 'crimson',
+        fontWeight: 'bold',
+        textAlign: 'center',
     },
 });

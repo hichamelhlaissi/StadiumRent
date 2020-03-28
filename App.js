@@ -37,6 +37,8 @@ export default class App extends React.Component{
             isLoading: true,
             modalVisible: false,
             error:null,
+            secureTextEntryFirst:true,
+            showFirst:'show',
         }
     }
     setModalVisible(visible) {
@@ -48,7 +50,6 @@ export default class App extends React.Component{
     handlePassword(value){
         this.setState({password: value})
     };
-
     componentDidMount() {
         this.getNavigator();
     }
@@ -89,10 +90,17 @@ export default class App extends React.Component{
 
     };
     render() {
-
+        const secureTextEntryFirst=()=>{
+            if (this.state.secureTextEntryFirst){
+                this.setState({secureTextEntryFirst:false, showFirst:'hide'})
+            }if (!this.state.secureTextEntryFirst){
+                this.setState({secureTextEntryFirst:true, showFirst:'show'})
+            }
+        };
         const CloseModal =()=>{
             this.setModalVisible(false);
         };
+
         console.disableYellowBox = true;
         console.log(this.state.user);
         if (this.state.isLoading) {
@@ -100,7 +108,6 @@ export default class App extends React.Component{
                 <ImageBackground source={require('./assets/Images/main.png')} style={{flex:1}}/>
             );
         }
-
         if (this.state.Data === 'userResponsible') {
             return <NavigatorOwner/>
         }if (this.state.Data === 'userNormal'){
@@ -137,13 +144,14 @@ export default class App extends React.Component{
                                 style={styles.input}
                                 value={this.state.password}
                                 maxLength={22}
-                                secureTextEntry={true}
+                                secureTextEntry={this.state.secureTextEntryFirst}
                                 placeholder="Password"
                                 underlineColorAndroid = "transparent"
                                 placeholderTextColor = "#a9a9a1"
                                 autoCapitalize = "none"
                                 onChangeText={(value) => { this.handlePassword(value)}}
                             />
+                            <Text onPress={()=>secureTextEntryFirst()} style={styles.PasswordIcon}>{this.state.showFirst}</Text>
                         </View>
                     </View>
                     <View style={styles.loginAndRegister}>
@@ -297,5 +305,10 @@ const styles = StyleSheet.create({
         textDecorationLine: 'underline',
         textAlign: 'center',
         opacity: 0.3,
+    },
+    PasswordIcon:{
+        position:'absolute',
+        padding: 8,
+        marginLeft:300,
     }
 });

@@ -98,7 +98,7 @@ export default class Register extends React.Component{
                         email:'',
                         password : '',
                         repeatpassword:'',
-                        userType:'',
+                        userType:'userNormal',
                     }}
                     validationSchema={Check}
                     onSubmit={(values) =>{

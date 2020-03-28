@@ -9,6 +9,15 @@ export default class RequestSent extends React.Component {
         super(props);
         const {state} = props.navigation;
     }
+    componentDidMount(){
+        this.RequestSent();
+    }
+    RequestSent=(StartOver=()=>this.props.navigation.navigate('Home'))=>{
+        setTimeout(function () {
+            StartOver();
+        },5000)
+    };
+
     render() {
         return (
             <ImageBackground source={require('../../assets/Images/RequestSent.png')} style={styles.container}>

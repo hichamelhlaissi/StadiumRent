@@ -10,6 +10,9 @@ export default class Hour extends Component {
     constructor(props){
         super(props);
         const {state} = props.navigation;
+        this.stadiumName = state.params.stadiumName;
+        this.IdResponsible=state.params.IdResponsible;
+        this.IdStaduim=state.params.IdStaduim;
     }
     state={
          Today : new Date(),
@@ -27,7 +30,16 @@ export default class Hour extends Component {
         modalVisible: false,
         isLoading: false,
     };
+
+    componentDidMount() {
+        // const { navigation } = this.props;
+        // this.focusListener = navigation.addListener('didFocus', () => {
+        //     this.setState({ isLoading: true });
+        // });
+    }
+
     render(){
+        console.log('this.IdResponsible',this.IdResponsible);
         let today = new Date();
         let TodayDate=today.getDate() + "/"+ parseInt(today.getMonth()+1) +"/"+ today.getFullYear();
 
@@ -49,11 +61,17 @@ export default class Hour extends Component {
                                             </View>
                                             <View style={styles.feedbacksView}>
                                                 <Entypo name='location-pin' size={25} />
-                                                <Text style={styles.NameStaduim}>{Info.StadeName}</Text>
+                                                <Text style={styles.NameStaduim}>{this.stadiumName}</Text>
                                             </View>
                                         </View>
                                         <TouchableOpacity style={styles.Button} onPress={() =>
-                                            this.props.navigation.navigate('Order_Summary', {data:'Hicham Elhlaissi'})}>
+                                            this.props.navigation.navigate('Order_Summary', {
+                                                stadiumName:this.stadiumName,
+                                                Day:TodayDate,
+                                                Hour: Info.Hour,
+                                                IdResponsible: this.IdResponsible,
+                                                IdStaduim: this.IdStaduim,
+                                            })}>
                                             <Text style={{textAlign: 'center', fontSize:20, marginTop: 5}}>Reserve</Text>
                                         </TouchableOpacity>
                                     </View>

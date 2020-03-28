@@ -38,7 +38,6 @@ export default class MyStaduims extends React.Component{
         });
         this.getStadiums();
     }
-
     componentWillUnmount() {
         this.focusListener.remove();
     }

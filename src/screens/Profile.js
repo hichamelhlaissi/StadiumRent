@@ -1,21 +1,5 @@
 import React from 'react';
-import {
-    StyleSheet,
-    Text,
-    View,
-    Image,
-    ActivityIndicator,
-    TextInput,
-    Button,
-    KeyboardAvoidingView,
-    ScrollView,
-    Alert,
-    TouchableOpacity,
-    Picker,
-    RefreshControl,
-    Modal
-} from 'react-native';
-import { Icon } from 'react-native-elements';
+import {StyleSheet, Text, View, Image, ActivityIndicator, TextInput, Button, KeyboardAvoidingView, ScrollView, Alert, TouchableOpacity, Picker, RefreshControl, Modal} from 'react-native';
 import { Formik } from 'formik';
 import * as yup from 'yup';
 import * as  ImagePicker from 'expo-image-picker';
@@ -52,7 +36,6 @@ export default class Profile extends React.Component{
         this.state.refreshing= false;
         this.state.user = auth.currentUser;
         if (this.state.user.emailVerified){
-
             console.log(this.state.user.emailVerified);
         }if (!this.state.user.emailVerified){
                 this.state.isEmailVerified="Email verification is required to make an order";
@@ -93,12 +76,16 @@ export default class Profile extends React.Component{
             console.log({emailVerified: user.emailVerified})
         });
         this.setState({ Data: {}, refreshing:true, error:"",user: {},First:"", Last:"", Phone:"", Keys:"", isEmailVerified:""});
-        //Call the Service to get the latest data
         this.GetProfile();
         this.IsEmailVerified();
     }
-    componentDidMount() {
 
+    componentDidMount() {
+        const { navigation } = this.props;
+        this.focusListener = navigation.addListener('didFocus', () => {
+            this.setState({ Data:{},isLoading: true });
+            this.GetProfile();
+        });
         this.GetProfile();
 
         this.state.user = auth.currentUser;
@@ -117,11 +104,13 @@ export default class Profile extends React.Component{
 
         }).then(r  =>this.setState({keys: keytable}));
     }
-    UpdateProfile=(DataInput,dataSaved=()=>this.GetProfile())=>{
 
-        console.log('hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh');
+    UpdateProfile=(DataInput,dataSaved=()=>this.GetProfile(), EmailV=()=> this.IsEmailVerified(),
+              ReloadData=()=>this.setState({ Data: {}, refreshing:true, error:"",user: {},First:"", Last:"", Phone:"", Keys:"", isEmailVerified:""}))=>{
         this.setState({isLoading: true});
-        console.log('key dial zzzzb',this.state.keys);
+        if (DataInput.FirstName === ""){
+            console.log('DataInput.FirstName',DataInput.FirstName);
+        }
         if (DataInput.Email === this.state.Data.email){
             db.ref("users/"+this.state.keys).update({
                 FirstName: DataInput.FirstName,
@@ -138,17 +127,19 @@ export default class Profile extends React.Component{
                 } else {
                     console.log('success');
                 }
-            }).then(r =>this.GetProfile());
+            }).then(r =>ReloadData(),dataSaved(), EmailV());
         }else {
             let user = auth.currentUser;
             user.updateEmail(DataInput.email).then(function() {
                 console.log('email changed');
                 fct();
                 dataSaved();
+                EmailV();
             }).catch(function(error) {
                 errors(error.message);
                 console.log('An error happened', error);
                 dataSaved();
+                EmailV();
             });
             const errors=(error)=>{
                 this.setState({error:error})
@@ -183,7 +174,7 @@ export default class Profile extends React.Component{
     GetProfile =(dataUser, Change=()=>this.setState({Data:dataUser, isLoading: false,}),
                  First=()=>this.setState({First:'First name is required to make an order'}),
                  Last=()=>this.setState({Last:'Last name is required to make an order'}),
-                 Phone=()=>this.setState({Phone:'Phone number name is required to make an order'}))=>{
+                 Phone=()=>this.setState({Phone:'Phone number is required to make an order'}))=>{
         this.state.user = auth.currentUser;
         let userCon = this.state.user.uid;
         let ref = db.ref("/users");
@@ -219,7 +210,7 @@ export default class Profile extends React.Component{
                 let url = await ref.getDownloadURL();
                 this.setState({images:url})
             }if (dataGender === 'Female' && dataImage === ""){
-                let ref = storage.ref('UsersImage/women.png');
+                let ref = storage.ref('UsersImage/woman.png');
                 let url = await ref.getDownloadURL();
                 this.setState({images:url})
             }if (dataGender === "" && dataImage === "") {
@@ -291,15 +282,15 @@ export default class Profile extends React.Component{
     render(){
         const CheckField = yup.object({
             userName: yup.string().required().max(40).min(5),
-            FirstName: yup.string().required().max(40).min(5).test('value-name', 'Space not allowed', (yourValue) => !yourValue.includes(' ')),
-            LastName: yup.string().required().max(40).min(5).test('value-name', 'Space not allowed', (yourValue) => !yourValue.includes(' ')),
-            City: yup.string().min(4).max(40).test('value-name', 'Space not allowed', (yourValue) => !yourValue.includes(' ')),
+            FirstName: yup.string().max(40).min(5),
+            LastName: yup.string().max(40).min(5),
+            City: yup.string().min(4).max(40),
             Year:yup.number().positive().min(1900).max(2019),
             Month:yup.number().positive().min(1).max(12),
             Day:yup.number().positive().min(1).max(31),
             Email: yup.string().required().email(),
-            Gender: yup.string().required().max(40).min(3),
-            Phone_Number : yup.number().positive().required()
+            Gender: yup.string().max(40).min(3),
+            Phone_Number : yup.number().positive().nullable()
                 .test('is-num-1-10','Phone number most be 10 numbers', (val)=>{
                     return parseInt(val) <1234567899 && parseInt(val) >=123456789;
                 })
@@ -497,8 +488,8 @@ export default class Profile extends React.Component{
                                         style={styles.input}
                                         selectedValue={props.values.Gender}
                                         onValueChange={props.handleChange('Gender')}>
-                                        <Picker.Item label="Female" value="Female" />
                                         <Picker.Item label="Male" value="Male" />
+                                        <Picker.Item label="Female" value="Female" />
                                     </Picker>
                                     <Text style={styles.errorText}>{props.touched.Gender && props.errors.Gender}</Text>
 
