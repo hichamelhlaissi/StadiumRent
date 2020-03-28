@@ -222,7 +222,7 @@ export default class stadiumLocation extends React.Component{
                 </MapView>
                 {this.searchInterface()}
                 <TouchableOpacity style={styles.nextButton} onPress={() => this.goNext()}>
-                    <Text style={styles.nextButtonText}>Go to choose the time</Text>
+                    <Text style={styles.nextButtonText}>Next</Text>
                 </TouchableOpacity >
             </View>
         );

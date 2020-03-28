@@ -33,7 +33,7 @@ export default class MyStaduims extends React.Component{
     componentDidMount() {
         const { navigation } = this.props;
         this.focusListener = navigation.addListener('didFocus', () => {
-            this.setState({ stadiums: [],isLoading: true });
+            this.setState({ isLoading: true, stadiums: [] });
             this.getStadiums();
         });
         this.getStadiums();
@@ -96,9 +96,7 @@ export default class MyStaduims extends React.Component{
                                     )
                                 })
                                 :
-                                stadiumsKeys.length > 0
-                                    ? <View style={styles.noStadiums}><Text>You have no stadium to see</Text></View>
-                                    : <View></View>
+                                <View style={styles.noStadiums}><Text>You have no stadium to see</Text></View>
                     }
                     <TouchableOpacity style={styles.addNewStadiumButton} onPress={() => this.props.navigation.navigate('addNewStadium')}>
                         <Text style={styles.addNewStadiumButtonText}>Add new stadium</Text>
