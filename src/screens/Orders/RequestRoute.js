@@ -32,13 +32,30 @@ export const IsOrderValid=()=>{
     query.once("value", function (snapshot) {
         snapshot.forEach(function (child) {
             if (child.val().Status === "Pending"){
-                if (child.val().Day <= FullDate){
-                    if (child.val().StartHour <= getHours){
+
+                if ((child.val().rentYear === getFullYear) && (child.val().rentMonth === getMonth) && (child.val().rentDay === getDay) && (child.val().StartHour <= getHours)){
+                    db.ref("/orders/"+child.key).update({
+                        Status: 'Canceled',
+                        Canceled: 'System : Over Time',
+                    });
+                }
+                if ((child.val().rentYear === getFullYear) && (child.val().rentMonth === getMonth) && (child.val().rentDay < getDay)){
+                    db.ref("/orders/"+child.key).update({
+                        Status: 'Canceled',
+                        Canceled: 'System : Over Time',
+                    });
+                }
+                    if ((child.val().rentYear === getFullYear) && (child.val().rentMonth < getMonth)){
                         db.ref("/orders/"+child.key).update({
                             Status: 'Canceled',
                             Canceled: 'System : Over Time',
                         });
-                    }
+                        }
+                if (child.val().rentYear < getFullYear){
+                        db.ref("/orders/"+child.key).update({
+                            Status: 'Canceled',
+                            Canceled: 'System : Over Time',
+                        });
                 }
             }
         });
@@ -58,12 +75,31 @@ export const IsOrderDone=()=>{
         snapshot.forEach(function (child) {
             if (child.val().Status === "Accepted"){
                 if (child.val().Day <= FullDate){
-                    if (child.val().StartHour <= getHours){
+                    if ((child.val().rentYear === getFullYear) && (child.val().rentMonth === getMonth) && (child.val().rentDay === getDay) && (child.val().StartHour <= getHours)){
                         db.ref("/orders/"+child.key).update({
-                            Status: 'Delivered',
+                            Status: 'Canceled',
                             Canceled: 'System : Delivered',
                         });
                     }
+                    if ((child.val().rentYear === getFullYear) && (child.val().rentMonth === getMonth) && (child.val().rentDay < getDay)){
+                        db.ref("/orders/"+child.key).update({
+                            Status: 'Canceled',
+                            Canceled: 'System : Delivered',
+                        });
+                    }
+                    if ((child.val().rentYear === getFullYear) && (child.val().rentMonth < getMonth)){
+                        db.ref("/orders/"+child.key).update({
+                            Status: 'Canceled',
+                            Canceled: 'System : Delivered',
+                        });
+                    }
+                    if (child.val().rentYear < getFullYear){
+                        db.ref("/orders/"+child.key).update({
+                            Status: 'Canceled',
+                            Canceled: 'System : Delivered',
+                        });
+                    }
+
                 }
             }
         });
