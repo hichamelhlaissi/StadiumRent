@@ -1,11 +1,11 @@
 import * as React from 'react';
-import {Dimensions, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {ActivityIndicator, Dimensions, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {SceneMap, TabBar, TabView} from 'react-native-tab-view';
 import {APPROX_STATUSBAR_HEIGHT} from "react-native-paper/src/constants";
 import HistoryRoute from "./HistoryRoute";
-import RequestRoute from "./RequestRoute";
+import RequestRoute, {IsOrderValid} from "./RequestRoute";
 import ScheduledRoute from "./ScheduledRoute";
-
+import {db} from "../../services/FireBaseConfig";
 
 const initialLayout = {
     height: 0,
@@ -13,31 +13,64 @@ const initialLayout = {
 };
 
 export default class Orders extends React.Component {
+    constructor(props){
+        super(props);
+        const {state} = props.navigation;
+        this.state = {
+            index: 0,
+            isLoading:true,
+            routes: [
+                { key: 'history', title: 'History' },
+                { key: 'scheduled', title: 'Scheduled' },
+                { key: 'request', title: 'Request' },
+            ],
+        };
+    }
+    componentDidMount() {
 
-    state = {
-        index: 0,
-        routes: [
-            { key: 'history', title: 'History' },
-            { key: 'scheduled', title: 'Scheduled' },
-            { key: 'request', title: 'Request' },
-        ],
-    };
+        IsOrderValid();
+
+        this.setState({isLoading:false});
+
+
+    }
+
 
     _handleIndexChange = index => this.setState({ index });
 
     _renderHeader = props => <TabBar style={styles.tabBar} {...props} />;
 
-    _renderScene = SceneMap({
-        history: HistoryRoute,
-        scheduled: ScheduledRoute,
-        request: RequestRoute,
-    });
-
+    // _renderScene = SceneMap({
+    //     history: HistoryRoute,
+    //     scheduled: ScheduledRoute,
+    //     request: RequestRoute,
+    // });
+    renderScene = ({ route }) => {
+        const {NavData} = this.props.navigation;
+        switch (route.key) {
+            case 'history':
+                return <HistoryRoute data={NavData} />;
+            case 'scheduled':
+                return <ScheduledRoute data={NavData} />;
+            case 'request':
+                return <RequestRoute data={NavData} />;
+            default:
+                return null;
+        }
+    };
     render() {
+        if (this.state.isLoading) {
+            return (
+                <View style={{ flex: 1, padding: 20 }}>
+                    <ActivityIndicator size={50}/>
+                </View>
+            );
+        }
+
         return (
-            <TabView
+                <TabView
                 navigationState={this.state}
-                renderScene={this._renderScene}
+                renderScene={this.renderScene}
                 renderTabBar={this._renderHeader}
                 onIndexChange={this._handleIndexChange}
                 initialLayout={initialLayout}

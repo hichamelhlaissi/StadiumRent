@@ -1,88 +1,298 @@
-import React, { Component } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, TextInput, Button, Modal, TouchableHighlight, Image } from 'react-native';
+import React, {Component} from 'react';
+import {
+    Alert,
+    Button,
+    Image,
+    Modal,
+    RefreshControl,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
+} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import ModalWrapper from "react-native-modal-wrapper";
 import {APPROX_STATUSBAR_HEIGHT} from "react-native-paper/src/constants";
-//import ajax from '../../services/fetchOrders';
-//import Geocoder from 'react-native-geocoding';
+import {auth, db} from "../../services/FireBaseConfig";
+import ShowOnMap from "./ShowOnMap";
+import {FontAwesome} from '@expo/vector-icons';
+
+
+export const IsOrderValid=()=>{
+    let getDay = new Date().getDate();
+    let getFullYear = new Date().getFullYear();
+    let getMonth = new Date().getMonth() + 1;
+    let getHours = new Date().getHours();
+    let FullDate = getDay+'/'+getMonth+'/'+getFullYear;
+    let ref = db.ref("/orders");
+    let query = ref.orderByKey();
+    console.log('Function Is Set');
+    query.once("value", function (snapshot) {
+        snapshot.forEach(function (child) {
+            if (child.val().Status === "Pending"){
+                if (child.val().Day <= FullDate){
+                    if (child.val().StartHour <= getHours){
+                        db.ref("/orders/"+child.key).update({
+                            Status: 'Canceled',
+                            Canceled: 'System : Over Time',
+                        });
+                    }
+                }
+            }
+        });
+    }).then( r =>console.log('success'));
+};
+
+export const IsOrderDone=()=>{
+    let getDay = new Date().getDate();
+    let getFullYear = new Date().getFullYear();
+    let getMonth = new Date().getMonth() + 1;
+    let getHours = new Date().getHours();
+    let FullDate = getDay+'/'+getMonth+'/'+getFullYear;
+    let ref = db.ref("/orders");
+    let query = ref.orderByKey();
+    console.log('Function Is Set');
+    query.once("value", function (snapshot) {
+        snapshot.forEach(function (child) {
+            if (child.val().Status === "Accepted"){
+                if (child.val().Day <= FullDate){
+                    if (child.val().StartHour <= getHours){
+                        db.ref("/orders/"+child.key).update({
+                            Status: 'Delivered',
+                            Canceled: 'System : Delivered',
+                        });
+                    }
+                }
+            }
+        });
+    }).then( r =>console.log('success'));
+};
 
 export default class RequestRoute extends Component {
-
-    state = {
-        orders: [
-            {'id': 1,'stadiumName': 'Stade Ibn Battouta', 'matchDate': '08/03/2020', 'matchTime': '15:00'}
-        ],
-        modalVisible: false,
-        isLoading: false,
-        messageCancellation: "",
+    constructor(props){
+        super(props);
+        this.state = {
+            modalVisible: false,
+            modalShowOnMap:false,
+            isLoading: true,
+            messageCancellation: "",
+            refreshing: false,
+            Orders:[],
+            Favorite:[],
+            Sender:'',
+            Cancel:'',
+            Check:false,
+        };
     };
 
-    // async componentDidMount() {
-    //     const orders = await ajax.fetchOrdersHistory();
-    //
-    //     for (const cord of orders) {
-    //         Geocoder.init("AIzaSyCoIzI4JvkT0MjvaBXH-OSt6d6pYuU1dMg");
-    //         Geocoder.from(cord.lat_from, cord.long_from).then(json => {
-    //             var addressComponent = json.results[0].address_components[0];
-    //             console.log(addressComponent.long_name);
-    //             this.setState({orders: orders, isLoading: false, });
-    //             return addressComponent.long_name;
-    //         });
-    //     }
-    // }
 
-    // geoCoding() {
-    //     for (const cord of this.state.orders) {
-    //         Geocoder.init("AIzaSyCoIzI4JvkT0MjvaBXH-OSt6d6pYuU1dMg");
-    //         Geocoder.from(cord.lat_from, cord.long_from)
-    //             .then(json => {
-    //                 var addressComponent = json.results[0].address_components[0];
-    //                 const newOrders = this.state.orders.map((order) => {
-    //
-    //                     return {...order, place_to: addressComponent.long_name};
-    //                 });
-    //                 this.setState({orders: newOrders });
-    //                 return addressComponent.long_name;
-    //             });
-    //     }
-    // }
+    componentDidMount() {
+       // this.getFavorite();
+        IsOrderDone();
+        IsOrderValid();
+        this.getRequestOrders();
+    }
 
-
-    cancelOrder(message) {
+    cancelOrder(message, Change=()=>this.setState({isLoading: false, Orders:[]})) {
         if (message.length > 0){
+            this.setState({isLoading: true});
+            let IdOrder =this.state.Cancel;
+            console.log(IdOrder);
+            setTimeout(function () {
+                 db.ref("/orders/"+IdOrder).update({
+                     Status: 'Canceled',
+                     Canceled: message,
+                 }, function (error) {
+                     if (error) {
+                         Alert.alert('Error', error)
+                     } else {
+                         console.log('success');
+                     }
+                 }).then(r =>Change());
+
+            },200);
+
+            this.getRequestOrders();
+
             Alert.alert('Message cancellation sent successfully!!','Your cancellation message is: '+message);
         }else {
             Alert.alert('Erreur!!','Your cancellation message is empty');
         }
     }
+    onRefresh() {
 
+        this.setState({ Orders: [], refreshing:true});
+        this.getRequestOrders();
+        setTimeout(function () {
+            refreshing();
+        },100);
+        const refreshing=()=>{
+            this.state.refreshing= false;
+        }
+    }
+     CloseModal =()=>{
+        this.setModalVisible(false);
+    };
     setModalVisible(visible) {
         this.setState({modalVisible: visible});
-    }
+    };
+    CloseModalShowOnMap =()=>{
+        this.modalShowOnMap(false);
+    };
+    modalShowOnMap(visible){
+        this.setState({modalShowOnMap: visible});
+    };
+    addToFavorite=(IdStaduim, stadiumName, IdResponsible, Data, check = false)=>{
+        let UserC = auth.currentUser.uid;
+        let ref = db.ref("/favoriteStaduim");
+        let query = ref.orderByChild("uid").equalTo(UserC);
+        query.once("value", function (snapshot) {
+            if (snapshot.val() === null){
+                db.ref('/favoriteStaduim').push({
+                    uid: auth.currentUser.uid,
+                    IdResponsible: IdResponsible,
+                    IdStaduim: IdStaduim,
+                    stadiumName : stadiumName,
+                    Deleted:'false',
+                }, function (error) {
+                    if (error) {
+                        Alert.alert('Error!!', error);
+                    } else {
+                        console.log('success');
+                    }
+                });
+            }
+            Data=snapshot.val();
+            let Keys = Object.keys(Data);
+            Keys.map((key)=>{
+                let Test = Data[key];
+
+                console.log('-----',Test.IdStaduim);
+                for (let i = 0; i < Keys.length; i++){
+                    if (Test.IdStaduim === IdStaduim){
+                        check= true;
+
+                    }
+                }
+            });
+        }).then( r =>{
+            if (check){
+                return Alert.alert('Error!!', 'Already Exist');
+            }
+            if (!check){
+                db.ref('/favoriteStaduim').push({
+                    uid: auth.currentUser.uid,
+                    IdResponsible: IdResponsible,
+                    IdStaduim: IdStaduim,
+                    stadiumName : stadiumName,
+                    Deleted:'false',
+                }, function (error) {
+                    if (error) {
+                        Alert.alert('Error!!', error);
+                    } else {
+                        console.log('success');
+                    }
+                });
+
+            }
+        });
+
+        this.onRefresh();
+    };
+    getFavorite=(DataF, ChangeF=()=> this.setState({Check:DataF}))=>{
+        let UserC = auth.currentUser.uid;
+        let ref = db.ref("/favoriteStaduim");
+        let query = ref.orderByChild("uid").equalTo(UserC);
+        query.on("value", function (snapshot) {
+            snapshot.forEach(function (child) {
+                DataF = snapshot.val();
+                ChangeF();
+            });
+        });
+    };
+    CardList = ({Orders: {uid,StartHour, EndHour, Day, stadiumName,stadiumAddress,city,IdStaduim, Status, IdResponsible}, IdOrders}) => {
+
+        if (Status === "Pending") {
+            return (
+                <View style={styles.cardStyle}>
+                    <Modal animationType="slide"
+                           transparent={false}
+                           visible={this.state.modalShowOnMap}>
+                        <ShowOnMap CloseModal={this.CloseModalShowOnMap} IdStaduimm={this.state.Sender}/>
+                    </Modal>
+                    <View style={styles.infos}>
+                        <Text style={styles.stadiumName}>{stadiumName}</Text>
+                        <Text style={styles.matchDate}><Icon name="calendar-alt" size={18} color="#fff"/> {Day}</Text>
+                        <Text style={styles.matchTime}><Icon name="clock" size={18}
+                                                             color="#fff"/> {StartHour} -> {EndHour}</Text>
+                        <Text style={styles.checkLocation}><Icon name="map-marker-alt" size={18} color="#fff"/> {city}
+                        </Text>
+                        <Text style={styles.checkLocation}><FontAwesome name="circle" size={15} color="green"/> {Status}
+                        </Text>
+                    </View>
+                    <View style={styles.buttonsView}>
+                        <TouchableOpacity style={styles.buttons} onPress={() => {
+                            this.modalShowOnMap(true);
+                            this.setState({Sender: IdStaduim})
+                        }}>
+                            <Text style={styles.buttonsText}><Icon name="map-marker-alt" size={15}
+                                                                   color="#EAE114"/> Show on map</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={[styles.buttons, {marginTop: 12}]}
+                                          onPress={() => this.addToFavorite(IdStaduim, stadiumName, IdResponsible)}>
+                            <Text
+                                style={styles.buttonsText}> Add to favorite</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={[styles.buttons, {marginTop: 12}]} onPress={() => {
+                            this.setModalVisible(true);
+                            this.setState({Cancel: IdOrders})
+                        }}>
+                            <Text style={styles.buttonsText}>Cancel</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            )
+        }
+        return <View style={styles.noOrders}/>;
+    };
+    getRequestOrders=(Data, Change=()=>{this.setState({Orders: Data})}, Set=()=>this.setState({isLoading:false}))=>{
+        setTimeout(function () {
+            let UserC = auth.currentUser.uid;
+            let ref = db.ref("/orders");
+            let query = ref.orderByChild("uid").equalTo(UserC);
+            query.once("value", function (snapshot) {
+                snapshot.forEach(function (child) {
+                    Data = snapshot.val();
+                    Change();
+                });
+            }).then( r =>Set());
+        },200);
+
+    };
     render() {
+        let OrdersKeys = Object.keys(this.state.Orders);
         return (
             <View style={styles.container}>
+                <ScrollView refreshControl={
+                    <RefreshControl
+
+                        refreshing={this.state.refreshing}
+                        onRefresh={this.onRefresh.bind(this)}
+                    />
+                }>
                 {
                     this.state.isLoading ? <View style={styles.isLoading}><Image source={require('../../../assets/Images/spinner.gif')}/></View>
                         :
-                        this.state.orders.length > 0
-                            ? this.state.orders.map((order) => {
+                        OrdersKeys.length > 0
+                            ? OrdersKeys.map((key) => {
                                 return (
-                                    <View style={styles.cardStyle} key={order.id}>
-                                        <View style={styles.infos}>
-                                            <Text style={styles.stadiumName}>{order.stadiumName}</Text>
-                                            <Text style={styles.matchDate}><Icon name="calendar-alt" size={18} color="#fff" />  {order.matchDate}</Text>
-                                            <Text style={styles.matchTime}><Icon name="clock" size={18} color="#fff" /> {order.matchTime}</Text>
-                                            <Text style={styles.checkLocation}><Icon name="map-marker-alt" size={18} color="#fff" /> Check location</Text>
-                                        </View>
-                                        <View style={styles.buttonsView}>
-                                            <TouchableOpacity style={styles.buttons} onPress={() => Alert.alert('Action!','Added to favorite')}>
-                                                <Text style={styles.buttonsText}><Icon name="star" size={15} color="#EAE114" /> Add to favorite</Text>
-                                            </TouchableOpacity >
-                                            <TouchableOpacity style={[ styles.buttons, { marginTop: 12 } ]} onPress={() => {this.setModalVisible(true);}}>
-                                                <Text style={styles.buttonsText}>Cancel</Text>
-                                            </TouchableOpacity >
-                                        </View>
+                                    <View style={styles.cardList} key={key}>
+                                        <this.CardList
+                                            Orders={this.state.Orders[key]}
+                                            IdOrders={key}
+                                        />
                                     </View>
                                 )
                             })
@@ -120,6 +330,7 @@ export default class RequestRoute extends Component {
                         </View>
                     </View>
                 </ModalWrapper>
+                </ScrollView>
             </View>
         );
     }

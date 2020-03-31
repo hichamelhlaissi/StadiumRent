@@ -1,43 +1,52 @@
 import React from 'react';
-import {
-    Alert,
-    Image,
-    KeyboardAvoidingView,
-    RefreshControl,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
-} from 'react-native';
+import {Alert, Image, KeyboardAvoidingView, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import Icon from 'react-native-vector-icons/Entypo';
 import {auth, db, storage} from '../services/FireBaseConfig';
 import StarRating from "react-native-star-rating";
 import {MaterialCommunityIcons} from "@expo/vector-icons";
+import Autocomplete from "react-native-autocomplete-input";
+
 
 
 export default class StaduimOnList extends React.Component{
     constructor(props) {
         super(props);
+        const {state} = props.navigation;
+        this.UserLocation = state.params.UserLocation.latitude+","+state.params.UserLocation.longitude;
         this.state = {
             stadiums: [],
             isLoading: true,
             starCount: 5,
             starField: 3.5,
             refreshing: false,
+            cities: [],
+            query: '',
+            city: '',
         };
+
+
     }
 
+    // getDistance=(NearbyStaduims, KeyData)=>{
+    //
+    //     fetch('https://maps.googleapis.com/maps/api/distancematrix/json?origins='+this.UserLocation+'&destinations='+NearbyStaduims+'&key=AIzaSyCoIzI4JvkT0MjvaBXH-OSt6d6pYuU1dMg')
+    //         .then((response) => response.json())
+    //         .then((data)=>{
+    //
+    //             for (const Stads of data.rows){
+    //                 for (const DataS of Stads.elements){
+    //                     this.setState({distance:DataS.distance,duration:DataS.duration});
+    //                     //this.state.distance=DataS.distance.text;
+    //                     //console.log(KeyData);
+    //
+    //
+    //                 }
+    //             }
+    //         });
+    //
+    //
+    // };
 
-    getStadiums =(Data,Change=()=>{this.setState({stadiums: Data, isLoading:false})})=>{
-        setTimeout(function(){
-            db.ref('/stadiums').on('value', querySnapShot => {
-                let data = querySnapShot.val() ? querySnapShot.val() : {};
-                Data= {...data};
-                Change();
-            });
-        }, 5000);
-    };
     onStarRatingPress(rating) {
         this.setState({
             starCount: 5
@@ -49,17 +58,31 @@ export default class StaduimOnList extends React.Component{
         });
     }
 
-    componentDidMount() {
-        const { navigation } = this.props;
-        this.focusListener = navigation.addListener('didFocus', () => {
-            this.setState({ stadiums: [],isLoading: true });
-            this.getStadiums();
+    getCities=  (Data,Change=()=>{this.state.cities.push(Data)})=> {
+        let ref = db.ref("/cities");
+        let query = ref.orderByChild("City");
+        query.once("value", function (snapshot) {
+            snapshot.forEach(function (child) {
+                Data = child.val();
+                Change();
+            });
         });
+    };
+
+    componentDidMount() {
+        // const { navigation } = this.props;
+        // this.focusListener = navigation.addListener('didFocus', () => {
+        //     this.setState({ stadiums: [],isLoading: true });
+        //     this.getStadiums();
+        // });
+
         this.getStadiums();
+        this.getCities();
+        //this.Data();
     }
-    componentWillUnmount() {
-        this.focusListener.remove();
-    }
+    // componentWillUnmount() {
+    //     this.focusListener.remove();
+    // }
     onRefresh() {
 
         this.setState({ stadiums: [], refreshing:true});
@@ -71,15 +94,18 @@ export default class StaduimOnList extends React.Component{
             this.state.refreshing= false;
         }
     }
-    CardList = ({stadiums: {stadiums: images, responsibleName, stadiumName, stadiumAddress, phoneNumber, status, payment,uid}, IdStaduim}) => {
+    CardList = ({stadiums: {stadiums: images,latitude,longitude, responsibleName, stadiumName, stadiumAddress, phoneNumber,city, status, payment,uid}, IdStaduim}) => {
         return(
 
             <View style={styles.cardStyle}>
                 <TouchableOpacity onPress={() => this.props.navigation.navigate('Hour', {
                     stadiumName:stadiumName,
+                    stadiumAddress:stadiumAddress,
                     IdResponsible:uid,
+                    city:city,
                     IdStaduim:IdStaduim,
                 })}>
+
                 <View>
                     <Text style={styles.name}><MaterialCommunityIcons name='soccer-field' size={20} style={{marginTop:5}} color="#9b9b9b"/>  {stadiumName}</Text>
                     <View style={styles.feedbacksView}>
@@ -119,7 +145,74 @@ export default class StaduimOnList extends React.Component{
             </View>
         )
     };
+    Data=()=>{
+        setTimeout(function () {
+            chane();
+        },2000);
+        const chane=()=>{
+            let myData = Object.keys(this.state.stadiums)
+                .map(key => {
+                    return {...this.state.stadiums[key] , name:key};
+                });
+            console.log(myData[2].name);
+        };
+
+    };
+    //SetDistance=(NearbyStaduims,KeyData)=>this.getDistance(NearbyStaduims,KeyData),
+    getStadiums =(City,Data,Change=()=>{this.setState({stadiums: Data, isLoading:false})},
+
+    )=>{
+        console.log(City);
+        if (City === undefined){
+            this.setState({isLoading:true});
+            console.log('No city');
+            setTimeout(function(){
+                let ref = db.ref("/stadiums");
+                let query = ref.orderByKey();
+                query.once("value", function (snapshot) {
+                    snapshot.forEach(function (child) {
+                        Data = snapshot.val();
+                        // coords = child.val().latitude + "," + child.val().longitude;
+                        // KeyData= child.key;
+                        Change();
+                    });
+                }).then( r =>console.log('success'));
+            }, 200);
+        }else{
+            this.setState({isLoading:true});
+            //City= this.state.city;
+            let cityChosen = City.city;
+            console.log(City.city);
+            setTimeout(function(){
+                let ref = db.ref("/stadiums");
+                let query = ref.orderByChild("city").equalTo(cityChosen);
+                query.once("value", function (snapshot) {
+                    snapshot.forEach(function (child) {
+                        Data = snapshot.val();
+                        // coords = child.val().latitude + "," + child.val().longitude;
+                        // KeyData= child.key;
+                        Change();
+                    });
+                }).then( r =>console.log('success'));
+            }, 200);
+        }
+    };
+    CityChoose=(city)=>{
+        this.setState({city:city, query: ''});
+        this.getStadiums({city});
+    };
+    findCity(query) {
+        if (query === '') {
+            return [];
+        }
+
+        const { cities } = this.state;
+        const regex = new RegExp(`${query.trim()}`, 'i');
+        return cities.filter(city => city.City.search(regex) >= 0);
+    };
     render() {
+        const { query } = this.state;
+        const cities = this.findCity(query);
         let stadiumsKeys = Object.keys(this.state.stadiums);
         return (
             <View style={styles.container}>
@@ -130,6 +223,26 @@ export default class StaduimOnList extends React.Component{
                         onRefresh={this.onRefresh.bind(this)}
                     />
                 }>
+                    <View>
+                    <Autocomplete
+                        autoCapitalize="none"
+                        autoCorrect={false}
+                        containerStyle={styles.autocompleteContainer}
+                        data={cities}
+                        value={this.state.query}
+                        defaultValue={query}
+                        onChangeText={text => this.setState({ query: text })}
+                        placeholder="Enter city here"
+                        renderItem={({ item }) => (
+                            <TouchableOpacity onPress={(data) => {data=item.City; this.CityChoose(data)}}>
+                                <Text style={styles.itemText}>
+                                    {item.City}
+                                </Text>
+                            </TouchableOpacity>
+                        )}
+                    />
+                    </View>
+                    <View>
                     {
                         this.state.isLoading ? <View style={styles.isLoading}><Image source={require('../../assets/Images/spinner.gif')}/></View>
                             :
@@ -147,8 +260,9 @@ export default class StaduimOnList extends React.Component{
                                 :
                                 stadiumsKeys.length > 0
                                     ? <View style={styles.noStadiums}><Text>Your City Have No Staduims</Text></View>
-                                    : <View></View>
+                                    : <View/>
                     }
+                    </View>
                 </ScrollView>
             </View>
         );
@@ -167,6 +281,9 @@ const styles = StyleSheet.create({
     cardList: {
         width: '95%',
         alignSelf: 'center',
+    },
+    autocompleteContainer: {
+        zIndex:999
     },
     cardStyle: {
         flexDirection: 'column',

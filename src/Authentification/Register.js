@@ -56,7 +56,6 @@ export default class Register extends React.Component{
                     Gender:'',
                     City : '',
                     Phone_Number : '',
-
                 });
                 Alert.alert('Action!', 'Your account is set');
             }).catch(error => this.setState({ error: error.message }))

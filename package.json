@@ -23,6 +23,8 @@
     "expo-permissions": "latest",
     "fiction-expo-restart": "^1.0.2",
     "firebase": "^7.10.0",
+    "firebase-admin": "^8.10.0",
+    "firebase-functions": "^3.5.0",
     "formik": "^2.1.4",
     "moment": "^2.24.0",
     "native-base": "^2.13.8",
