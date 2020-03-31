@@ -185,23 +185,7 @@ export default class stadiumProgram extends Component {
     render(){
         this.state.stadiumName = this.props.navigation.getParam('data1');
         this.state.stadiumId = this.props.navigation.getParam('data2');
-        const Program2 = [
-            { id: 0, StartHour: '09', EndHour: '10', rentDate: this.state.rentDate, reserved: false},
-            { id: 1, StartHour: '10', EndHour: '11', rentDate: this.state.rentDate, reserved: false },
-            { id: 2, StartHour: '11', EndHour: '12', rentDate: this.state.rentDate, reserved: false },
-            { id: 3, StartHour: '12', EndHour: '13', rentDate: this.state.rentDate, reserved: false },
-            { id: 4, StartHour: '13', EndHour: '14', rentDate: this.state.rentDate, reserved: false },
-            { id: 5, StartHour: '14', EndHour: '15', rentDate: this.state.rentDate, reserved: false },
-            { id: 6, StartHour: '15', EndHour: '16', rentDate: this.state.rentDate, reserved: false },
-            { id: 7, StartHour: '16', EndHour: '17', rentDate: this.state.rentDate, reserved: false },
-            { id: 8, StartHour: '17', EndHour: '18', rentDate: this.state.rentDate, reserved: false },
-            { id: 9, StartHour: '18', EndHour: '19', rentDate: this.state.rentDate, reserved: false },
-            { id: 10, StartHour: '19', EndHour: '20', rentDate: this.state.rentDate, reserved: false },
-            { id: 11, StartHour: '20', EndHour: '21', rentDate: this.state.rentDate, reserved: false },
-            { id: 12, StartHour: '21', EndHour: '22', rentDate: this.state.rentDate, reserved: false },
-            { id: 13, StartHour: '22', EndHour: '23', rentDate: this.state.rentDate, reserved: false },
-            { id: 14, StartHour: '23', EndHour: '00', rentDate: this.state.rentDate, reserved: false },
-        ];
+
         return (
 
             <ScrollView>
