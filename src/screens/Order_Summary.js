@@ -16,6 +16,7 @@ import ModalWrapper from "react-native-modal-wrapper";
 import {APPROX_STATUSBAR_HEIGHT} from "react-native-paper/src/constants";
 import StarRating from "react-native-star-rating";
 import {auth, db} from "../services/FireBaseConfig";
+import moment from "moment";
 
 export default class Order_Summary extends Component {
 
@@ -26,6 +27,9 @@ export default class Order_Summary extends Component {
         this.stadiumAddress= state.params.stadiumAddress;
         this.city = state.params.city;
         this.Day = state.params.Day;
+        this.rentDay = state.params.rentDay;
+        this.rentMonth = state.params.rentMonth;
+        this.rentYear = state.params.rentYear;
         this.StartHour = state.params.StartHour;
         this.EndHour = state.params.EndHour;
         this.IdResponsible=state.params.IdResponsible;
@@ -89,6 +93,9 @@ export default class Order_Summary extends Component {
                     city :this.city,
                     stadiumAddress :this.stadiumAddress,
                     Day: this.Day,
+                    rentDay: this.rentDay,
+                    rentMonth: this.rentMonth,
+                    rentYear: this.rentYear,
                     StartHour: this.StartHour,
                     EndHour: this.EndHour,
                     Status:'Pending',
@@ -119,6 +126,7 @@ export default class Order_Summary extends Component {
                 </View>
             );
         }
+        console.log(this.Day+"//"+this.rentDay+"//"+this.rentMonth+"//"+this.rentYear)
         return (
             <View style={styles.container}>
                 <View style={styles.cardStyle}>
