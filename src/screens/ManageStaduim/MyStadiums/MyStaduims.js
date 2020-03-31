@@ -27,7 +27,7 @@ export default class MyStaduims extends React.Component{
             });
         });
     }
-    }, 5000);
+    }, 1000);
 };
 
     componentDidMount() {
@@ -69,7 +69,7 @@ export default class MyStaduims extends React.Component{
                                 </Text>
                         }
                     </Text>
-                    <TouchableOpacity style={styles.buttons} onPress={() => this.props.navigation.navigate('stadiumProgram')}>
+                    <TouchableOpacity style={styles.buttons} onPress={() => this.props.navigation.navigate('stadiumProgram', {data1: stadiumName, data2: id})}>
                         <Text style={styles.buttonsText}>Add scheduled to the next week</Text>
                     </TouchableOpacity >
                 </View>

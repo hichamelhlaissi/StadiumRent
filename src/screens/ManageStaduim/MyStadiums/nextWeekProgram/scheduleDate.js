@@ -32,6 +32,7 @@ function maxDate() {
 
 const ScheduleDate = () => {
     let today = new Date();
+
     const [date, setDate] = useState(new Date(today.getFullYear(), today.getMonth(), today.getDate()));
     const [mode, setMode] = useState('date');
     const [show, setShow] = useState(false);

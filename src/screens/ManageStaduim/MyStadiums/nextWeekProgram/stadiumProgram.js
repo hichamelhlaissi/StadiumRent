@@ -1,73 +1,271 @@
-import React, {Component} from 'react';
-import {View, Button, Text, StyleSheet, TouchableOpacity, Image,ScrollView} from 'react-native';
+import React, {Component, useState} from 'react';
+import {Alert, View, Button, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Platform} from 'react-native';
 import { MaterialIcons, Entypo, FontAwesome} from '@expo/vector-icons';
 import {APPROX_STATUSBAR_HEIGHT} from "react-native-paper/src/constants";
+import moment from "moment";
+import RNDateTimePicker from "@react-native-community/datetimepicker";
+import {auth, db, storage} from './../../../../services/FireBaseConfig';
 
 
-import ScheduleDate from "./scheduleDate";
-import {Calendar} from "react-native-calendars";
 
 export default class stadiumProgram extends Component {
-    constructor(props){
+    constructor(props) {
         super(props);
+        const {state} = props.navigation;
     }
+
     state={
         Today : new Date(),
         DataUse: this.Today,
         // TodayDate:this.Today.getDate() + "/"+ parseInt(this.Today.getMonth()+1) +"/"+ this.Today.getFullYear(),
-
         Program: [
-            { Hour: '09 -> 10', date: this.Today, StadeName: 'Soccer Dar Lhamra' },
-            { Hour: '10 -> 11', date: 'TodayDate', StadeName: 'Soccer Dar Lhamra'},
-            { Hour: '11 -> 12', date: 'TodayDate', StadeName: 'Soccer Dar Lhamra' },
-            { Hour: '12 -> 13', date: 'TodayDate', StadeName: 'Soccer Dar Lhamra' },
-            { Hour: '13 -> 14', date: 'TodayDate', StadeName: 'Soccer Dar Lhamra'},
-            { Hour: '14 -> 15', date: this.Today, StadeName: 'Soccer Dar Lhamra' },
-            { Hour: '15 -> 16', date: 'TodayDate', StadeName: 'Soccer Dar Lhamra'},
-            { Hour: '16 -> 17', date: 'TodayDate', StadeName: 'Soccer Dar Lhamra' },
-            { Hour: '17 -> 18', date: 'TodayDate', StadeName: 'Soccer Dar Lhamra' },
-            { Hour: '18 -> 19', date: 'TodayDate', StadeName: 'Soccer Dar Lhamra'},
-            { Hour: '19 -> 20', date: this.Today, StadeName: 'Soccer Dar Lhamra' },
-            { Hour: '20 -> 21', date: 'TodayDate', StadeName: 'Soccer Dar Lhamra'},
-            { Hour: '21 -> 22', date: 'TodayDate', StadeName: 'Soccer Dar Lhamra' },
-            { Hour: '22 -> 23', date: 'TodayDate', StadeName: 'Soccer Dar Lhamra' },
-            { Hour: '23 -> 00', date: 'TodayDate', StadeName: 'Soccer Dar Lhamra'},
+            { id: 0, StartHour: '09', EndHour: '10', rentDate: moment(this.minDate()).format('DD/MM/YYYY'), reserved: false},
+            { id: 1, StartHour: '10', EndHour: '11', rentDate: moment(this.minDate()).format('DD/MM/YYYY'), reserved: false },
+            { id: 2, StartHour: '11', EndHour: '12', rentDate: moment(this.minDate()).format('DD/MM/YYYY'), reserved: false },
+            { id: 3, StartHour: '12', EndHour: '13', rentDate: moment(this.minDate()).format('DD/MM/YYYY'), reserved: false },
+            { id: 4, StartHour: '13', EndHour: '14', rentDate: moment(this.minDate()).format('DD/MM/YYYY'), reserved: false },
+            { id: 5, StartHour: '14', EndHour: '15', rentDate: moment(this.minDate()).format('DD/MM/YYYY'), reserved: false },
+            { id: 6, StartHour: '15', EndHour: '16', rentDate: moment(this.minDate()).format('DD/MM/YYYY'), reserved: false },
+            { id: 7, StartHour: '16', EndHour: '17', rentDate: moment(this.minDate()).format('DD/MM/YYYY'), reserved: false },
+            { id: 8, StartHour: '17', EndHour: '18', rentDate: moment(this.minDate()).format('DD/MM/YYYY'), reserved: false },
+            { id: 9, StartHour: '18', EndHour: '19', rentDate: moment(this.minDate()).format('DD/MM/YYYY'), reserved: false },
+            { id: 10, StartHour: '19', EndHour: '20', rentDate: moment(this.minDate()).format('DD/MM/YYYY'), reserved: false },
+            { id: 11, StartHour: '20', EndHour: '21', rentDate: moment(this.minDate()).format('DD/MM/YYYY'), reserved: false },
+            { id: 12, StartHour: '21', EndHour: '22', rentDate: moment(this.minDate()).format('DD/MM/YYYY'), reserved: false },
+            { id: 13, StartHour: '22', EndHour: '23', rentDate: moment(this.minDate()).format('DD/MM/YYYY'), reserved: false },
+            { id: 14, StartHour: '23', EndHour: '00', rentDate: moment(this.minDate()).format('DD/MM/YYYY'), reserved: false },
         ],
-
+        newProgram: [],
         modalVisible: false,
         isLoading: false,
+        stadiumName: "",
+        stadiumId: "",
+        rentDate: moment(this.minDate()).format('DD/MM/YYYY'),
     };
-    render(){
-        let today = new Date();
-        let TodayDate=today.getDate() + "/"+ parseInt(today.getMonth()+1) +"/"+ today.getFullYear();
 
+    componentDidMount(){
+        db.ref('/stadiums/'+this.state.stadiumId+'/programs/'+moment(this.minDate()).format('DD/MM/YYYY')+'/program').on('value', querySnapShot => {
+            let data = querySnapShot.val() ? querySnapShot.val() : {};
+            let programs = {...data};
+            this.setState({newProgram: Object.values(programs)})
+        })
+    }
+
+    minDate() {
+        var chosenWeekday = 1; // Monday
+
+        return  chosenWeekday < moment().weekday() ? moment().weekday(chosenWeekday + 7) : moment().weekday(chosenWeekday)
+    }
+
+    maxDate() {
+        let days = new Date(this.minDate());
+        return new Date(days.setTime( days.getTime() + 6 * 86400000 ));
+    }
+
+    ScheduleDate = () => {
+        let today = new Date();
+        let ProgramV2 = [
+            { id: 0, StartHour: '09', EndHour: '10', rentDate: this.state.rentDate, reserved: false},
+            { id: 1, StartHour: '10', EndHour: '11', rentDate: this.state.rentDate, reserved: false },
+            { id: 2, StartHour: '11', EndHour: '12', rentDate: this.state.rentDate, reserved: false },
+            { id: 3, StartHour: '12', EndHour: '13', rentDate: this.state.rentDate, reserved: false },
+            { id: 4, StartHour: '13', EndHour: '14', rentDate: this.state.rentDate, reserved: false },
+            { id: 5, StartHour: '14', EndHour: '15', rentDate: this.state.rentDate, reserved: false },
+            { id: 6, StartHour: '15', EndHour: '16', rentDate: this.state.rentDate, reserved: false },
+            { id: 7, StartHour: '16', EndHour: '17', rentDate: this.state.rentDate, reserved: false },
+            { id: 8, StartHour: '17', EndHour: '18', rentDate: this.state.rentDate, reserved: false },
+            { id: 9, StartHour: '18', EndHour: '19', rentDate: this.state.rentDate, reserved: false },
+            { id: 10, StartHour: '19', EndHour: '20', rentDate: this.state.rentDate, reserved: false },
+            { id: 11, StartHour: '20', EndHour: '21', rentDate: this.state.rentDate, reserved: false },
+            { id: 12, StartHour: '21', EndHour: '22', rentDate: this.state.rentDate, reserved: false },
+            { id: 13, StartHour: '22', EndHour: '23', rentDate: this.state.rentDate, reserved: false },
+            { id: 14, StartHour: '23', EndHour: '00', rentDate: this.state.rentDate, reserved: false },
+        ];
+
+        const [date, setDate] = useState(new Date(today.getFullYear(), today.getMonth(), today.getDate()));
+        const [mode, setMode] = useState('date');
+        const [show, setShow] = useState(false);
+
+        const onChange = (event, selectedDate) => {
+            const currentDate = selectedDate || date;
+            setShow(Platform.OS === 'ios');
+            setDate(currentDate);
+
+
+            if (selectedDate !== undefined) {
+                this.setState({newPrograms: [],Program: ProgramV2, isLoading: true});
+                    db.ref('/stadiums/'+this.state.stadiumId+'/programs/'+moment(selectedDate).format('DD/MM/YYYY')+'/program').on('value', querySnapShot => {
+                        let data = querySnapShot.val() ? querySnapShot.val() : {};
+                        let programs = {...data};
+                        this.setState({newProgram: Object.values(programs)});
+                    });
+                    this.setState({rentDate: moment(selectedDate).format('DD/MM/YYYY')});
+                    let program = this.state.Program;
+                    for (let p of program){
+                        p.rentDate = moment(selectedDate).format('DD/MM/YYYY');
+                    }
+                    this.setState({Program: program, isLoading: false});
+
+            }if (selectedDate === undefined) {
+                console.log("cancel")
+            }
+
+        };
+        const showMode = currentMode => {
+            setShow(true);
+            setMode(currentMode);
+        };
+
+        const showDatepicker = () => {
+            showMode('date');
+        };
+
+
+        return (
+            <View>
+                <View>
+                    <Button onPress={showDatepicker} title="Choose The Day" />
+                </View>
+                {show && (
+                    <RNDateTimePicker
+                        maximumDate={this.maxDate()}
+                        minimumDate={new Date(this.minDate())}
+                        testID="dateTimePicker"
+                        timeZoneOffsetInMinutes={0}
+                        value={new Date(this.minDate())}
+                        mode={mode}
+                        is24Hour={true}
+                        display="default"
+                        onChange={onChange}
+                    />
+                )}
+            </View>
+        );
+    };
+    onReserveV1(id){
+        let newProgram = [...this.state.Program];
+        newProgram[id].reserved = !newProgram[id].reserved;
+        this.setState({Program: newProgram});
+    }
+    onReserveV2(id){
+        let newProgram = [...this.state.newProgram];
+        newProgram[id].reserved = !newProgram[id].reserved;
+        this.setState({newProgram: newProgram});
+    }
+    onFinishV1(){
+        var programsRef = db.ref('/stadiums/'+this.state.stadiumId+'/programs/'+this.state.rentDate);
+        programsRef.set({
+            program: this.state.Program,
+        }).then(() => {
+            Alert.alert(
+                'Action!!',
+                'Data sent successfully',
+                [
+                    {text: 'OK', onPress: () => console.log('OK Pressed')},
+                ],
+                { cancelable: false }
+            )
+        });
+    }
+    onFinishV2(){
+        var programsRef = db.ref('/stadiums/'+this.state.stadiumId+'/programs/'+this.state.rentDate);
+        programsRef.set({
+            program: this.state.newProgram,
+        }).then(() => {
+            Alert.alert(
+                'Action!!',
+                'Data sent successfully',
+                [
+                    {text: 'OK', onPress: () => console.log('OK Pressed')},
+                ],
+                { cancelable: false }
+            );
+        });
+    }
+    render(){
+        this.state.stadiumName = this.props.navigation.getParam('data1');
+        this.state.stadiumId = this.props.navigation.getParam('data2');
+        const Program2 = [
+            { id: 0, StartHour: '09', EndHour: '10', rentDate: this.state.rentDate, reserved: false},
+            { id: 1, StartHour: '10', EndHour: '11', rentDate: this.state.rentDate, reserved: false },
+            { id: 2, StartHour: '11', EndHour: '12', rentDate: this.state.rentDate, reserved: false },
+            { id: 3, StartHour: '12', EndHour: '13', rentDate: this.state.rentDate, reserved: false },
+            { id: 4, StartHour: '13', EndHour: '14', rentDate: this.state.rentDate, reserved: false },
+            { id: 5, StartHour: '14', EndHour: '15', rentDate: this.state.rentDate, reserved: false },
+            { id: 6, StartHour: '15', EndHour: '16', rentDate: this.state.rentDate, reserved: false },
+            { id: 7, StartHour: '16', EndHour: '17', rentDate: this.state.rentDate, reserved: false },
+            { id: 8, StartHour: '17', EndHour: '18', rentDate: this.state.rentDate, reserved: false },
+            { id: 9, StartHour: '18', EndHour: '19', rentDate: this.state.rentDate, reserved: false },
+            { id: 10, StartHour: '19', EndHour: '20', rentDate: this.state.rentDate, reserved: false },
+            { id: 11, StartHour: '20', EndHour: '21', rentDate: this.state.rentDate, reserved: false },
+            { id: 12, StartHour: '21', EndHour: '22', rentDate: this.state.rentDate, reserved: false },
+            { id: 13, StartHour: '22', EndHour: '23', rentDate: this.state.rentDate, reserved: false },
+            { id: 14, StartHour: '23', EndHour: '00', rentDate: this.state.rentDate, reserved: false },
+        ];
         return (
 
             <ScrollView>
 
                 <View style={styles.container}>
-                    <ScheduleDate/>
+                    <View style={{flexDirection: 'row', justifyContent: 'space-between', width:'90%'}}>
+                        <this.ScheduleDate/>
+                    </View>
                     {
                         this.state.isLoading ? <View style={styles.isLoading}><Image source={require('../../../../../assets/Images/spinner.gif')}/></View>
                             :
+                            this.state.newProgram.length > 0 ?
+                                this.state.newProgram.map((Program) => {
+                                    return (
+                                        <View style={styles.cardStyle} key={Program.id}>
+                                            <View style={styles.infos}>
+                                                <View style={styles.feedbacksView}>
+                                                    <Text style={styles.HourInfo}>{Program.StartHour} -> {Program.EndHour}</Text>
+                                                    <FontAwesome style={styles.Calendar} name='calendar' size={20} />
+                                                    <Text style={styles.HourInfo}>{Program.rentDate}</Text>
+                                                </View>
+                                                <View style={styles.feedbacksView}>
+                                                    <Entypo name='location-pin' size={25} />
+                                                    <Text style={styles.NameStaduim}>{this.state.stadiumName}</Text>
+                                                </View>
+                                            </View>
+                                            {
+                                                Program.reserved ?
+                                                    <TouchableOpacity style={styles.buttonReserved} onPress={() => this.onReserveV2(Program.id)}>
+                                                        <Text style={{textAlign: 'center', fontSize:20, marginTop: 5, color: '#fff'}}>Reserved</Text>
+                                                    </TouchableOpacity>
+                                                    :
+                                                    <TouchableOpacity style={styles.buttonReserve} onPress={() => this.onReserveV2(Program.id)}>
+                                                        <Text style={{textAlign: 'center', fontSize:20, marginTop: 5}}>Reserve</Text>
+                                                    </TouchableOpacity>
+                                            }
+                                        </View>
+                                    )
+                                }) :
                             this.state.Program.length > 0
                                 ? this.state.Program.map((Program) => {
                                     return (
                                         <View style={styles.cardStyle} key={Program.id}>
                                             <View style={styles.infos}>
                                                 <View style={styles.feedbacksView}>
-                                                    <Text style={styles.HourInfo}>{Program.Hour}</Text>
+                                                    <Text style={styles.HourInfo}>{Program.StartHour} -> {Program.EndHour}</Text>
                                                     <FontAwesome style={styles.Calendar} name='calendar' size={20} />
-                                                    <Text style={styles.HourInfo}>{TodayDate}</Text>
+                                                    <Text style={styles.HourInfo}>{Program.rentDate}</Text>
                                                 </View>
                                                 <View style={styles.feedbacksView}>
                                                     <Entypo name='location-pin' size={25} />
-                                                    <Text style={styles.NameStaduim}>{Program.StadeName}</Text>
+                                                    <Text style={styles.NameStaduim}>{this.state.stadiumName}</Text>
                                                 </View>
                                             </View>
-                                            <TouchableOpacity style={styles.Button} onPress={() => alert('Yaha')}>
-                                                <Text style={{textAlign: 'center', fontSize:20, marginTop: 5}}>Reserve</Text>
-                                            </TouchableOpacity>
+                                            {
+                                                Program.reserved ?
+                                                    <TouchableOpacity style={styles.buttonReserved} onPress={() => this.onReserveV1(Program.id)}>
+                                                        <Text style={{textAlign: 'center', fontSize:20, marginTop: 5, color: '#fff'}}>Reserved</Text>
+                                                    </TouchableOpacity>
+                                                    :
+                                                    <TouchableOpacity style={styles.buttonReserve} onPress={() => this.onReserveV1(Program.id)}>
+                                                        <Text style={{textAlign: 'center', fontSize:20, marginTop: 5}}>Reserve</Text>
+                                                    </TouchableOpacity>
+                                            }
                                         </View>
                                     )
                                 })
@@ -75,7 +273,17 @@ export default class stadiumProgram extends Component {
                                 </View>
                     }
 
-
+                    {
+                        this.state.newProgram.length > 0 && !this.state.isLoading ?
+                            <TouchableOpacity style={styles.doneButton} onPress={() => this.onFinishV2()}>
+                                <Text style={styles.doneButtonText}>Finish</Text>
+                            </TouchableOpacity > :
+                            this.state.Program.length > 0 && !this.state.isLoading ?
+                            <TouchableOpacity style={styles.doneButton} onPress={() => this.onFinishV1()}>
+                                <Text style={styles.doneButtonText}>Finish</Text>
+                            </TouchableOpacity > :
+                                <View></View>
+                    }
                 </View>
             </ScrollView>
         );
@@ -134,14 +342,36 @@ const styles = StyleSheet.create({
     Calendar:{
         marginLeft: 15,
     },
-    Button:{
+    buttonReserve:{
         height:40,
         width:100,
         borderRadius: 50,
         marginTop:9,
-        marginRight:2,
+        marginRight:5,
         backgroundColor: '#fff',
-
-
-    }
+    },
+    buttonReserved:{
+        height:40,
+        width:100,
+        borderRadius: 50,
+        marginTop:9,
+        marginRight:5,
+        backgroundColor: '#ff1800',
+    },
+    doneButton: {
+        backgroundColor: "#000000",
+        paddingLeft: 12,
+        paddingRight: 12,
+        marginTop: 10,
+        width: '100%',
+        height: 50,
+        justifyContent: 'center',
+    },
+    doneButtonText: {
+        fontSize: 14,
+        color: "#ffffff",
+        textTransform: "uppercase",
+        textAlign: "center",
+        fontWeight: 'bold',
+    },
 });

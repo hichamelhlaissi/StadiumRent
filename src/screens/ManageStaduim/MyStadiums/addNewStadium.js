@@ -172,10 +172,12 @@ export default class addNewStadium extends React.Component{
                 payment: this.state.payment,
                 latitude: this.state.latitude,
                 longitude: this.state.longitude,
-                city: this.state.city
-            }).then(data => {
+                city: this.state.city,
+                stadiumId: ""
+        }).then(data => {
                 this.state.isLoading = false;
                 this.props.navigation.navigate('MyStaduim')
+                console.log(data.phoneNumber)
             });
         }
     };
