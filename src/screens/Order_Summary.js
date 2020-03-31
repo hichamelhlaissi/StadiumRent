@@ -23,8 +23,11 @@ export default class Order_Summary extends Component {
         super(props);
         const {state} = props.navigation;
         this.stadiumName = state.params.stadiumName;
+        this.stadiumAddress= state.params.stadiumAddress;
+        this.city = state.params.city;
         this.Day = state.params.Day;
-        this.Hour = state.params.Hour;
+        this.StartHour = state.params.StartHour;
+        this.EndHour = state.params.EndHour;
         this.IdResponsible=state.params.IdResponsible;
         this.IdStaduim=state.params.IdStaduim;
         this.state = {
@@ -82,9 +85,14 @@ export default class Order_Summary extends Component {
                     uid: auth.currentUser.uid,
                     IdResponsible: this.IdResponsible,
                     IdStaduim: this.IdStaduim,
+                    stadiumName : this.stadiumName,
+                    city :this.city,
+                    stadiumAddress :this.stadiumAddress,
                     Day: this.Day,
-                    Hour: this.Hour,
+                    StartHour: this.StartHour,
+                    EndHour: this.EndHour,
                     Status:'Pending',
+                    Canceled:'',
                 }, function (error) {
                     if (error) {
                         errors(error.message);
@@ -146,10 +154,10 @@ export default class Order_Summary extends Component {
                     <View style={styles.infos}>
                         <Text style={styles.name}>Details</Text>
                         <View style={styles.status}>
-                            <Text style={styles.statusText}>{this.stadiumName}</Text>
+                            <Text style={styles.statusText}>{this.stadiumName} | {this.city}</Text>
                         </View>
                         <View style={styles.startingPoint}>
-                            <Text style={[styles.startingPointText, {marginRight: 10}]}>{this.Hour} - {this.Day}</Text>
+                            <Text style={[styles.startingPointText, {marginRight: 10}]}>{this.StartHour} -> {this.EndHour} | {this.Day}</Text>
                         </View>
                     </View>
                     <View style={styles.buttonsView}>

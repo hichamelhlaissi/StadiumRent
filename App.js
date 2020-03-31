@@ -3,27 +3,16 @@ import Home from './src/screens/Home';
 import NavigatorUser from './src/routes/drawerUser';
 import NavigatorOwner from './src/routes/drawerOwner';
 import {auth, db} from "./src/services/FireBaseConfig";
-import {
-    ActivityIndicator,
-    Alert,
-    Animated,
-    Image, ImageBackground,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
-    Modal
-} from "react-native";
+import {ActivityIndicator, Alert, Animated, Image, ImageBackground, StyleSheet, Text, TextInput, TouchableOpacity, View, Modal} from "react-native";
 import {APPROX_STATUSBAR_HEIGHT} from "react-native-paper/src/constants";
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import {SocialIcon} from "react-native-elements";
 import Register from "./src/Authentification/Register";
+import {IsOrderValid,IsOrderDone} from "./src/screens/Orders/RequestRoute";
 export default class App extends React.Component{
 
     constructor(){
         super();
-
         this.state = {
             user:{},
             userInfo:{},
@@ -41,6 +30,7 @@ export default class App extends React.Component{
             showFirst:'show',
         }
     }
+
     setModalVisible(visible) {
         this.setState({modalVisible: visible});
     }
@@ -51,6 +41,11 @@ export default class App extends React.Component{
         this.setState({password: value})
     };
     componentDidMount() {
+        //Function dial depart :
+        IsOrderValid();
+        IsOrderDone();
+        // End FUnction dial depart
+
         this.getNavigator();
     }
     loginUser = (email, password, props, Change=()=>this.getNavigator()) => {
@@ -100,6 +95,7 @@ export default class App extends React.Component{
         const CloseModal =()=>{
             this.setModalVisible(false);
         };
+
 
         console.disableYellowBox = true;
         console.log(this.state.user);

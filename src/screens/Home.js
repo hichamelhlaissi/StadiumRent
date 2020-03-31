@@ -75,11 +75,7 @@ if (isLogged){
         };
         this.setState({
             initialPosition,
-            locationPermission:true,
-            departInfo:{
-                lat: location.coords.latitude,
-                lng: location.coords.longitude,
-            } });
+            locationPermission:true});
 
     };
     requestlocation =()=>{
@@ -133,12 +129,14 @@ if (isLogged){
         }, 3000);
     };
 
-    StadiumList = ({stadiums: {stadiums: images,latitude,longitude, responsibleName, stadiumName, stadiumAddress, phoneNumber, uid},IdStaduim}) => {
+    StadiumList = ({stadiums: {stadiums: images,latitude,longitude, responsibleName, stadiumName, stadiumAddress, phoneNumber, uid,city},IdStaduim}) => {
         return(
             <Marker coordinate={{ latitude: latitude, longitude: longitude }}>
                 <View style={styles.cardStyle}>
                     <Callout onPress={() => this.props.navigation.navigate('Hour', {
                         stadiumName:stadiumName,
+                        stadiumAddress:stadiumAddress,
+                        city:city,
                         IdResponsible:uid,
                         IdStaduim:IdStaduim,
                     })}>
@@ -160,6 +158,7 @@ if (isLogged){
                         <View style={styles.infos}>
                             <Text>Address : <Text style={{color: '#9b9b9b'}}>{stadiumAddress}</Text></Text>
                             <Text>Phone Number: <Text style={{color: '#9b9b9b'}}>{phoneNumber}</Text></Text>
+                            <Text>City: <Text style={{color: '#9b9b9b'}}>{city}</Text></Text>
                             <Text>Last Feedback :</Text>
                             <View style={styles.feedbacksView}>
                                 <StarRating
@@ -185,7 +184,6 @@ if (isLogged){
                                 <Text style={styles.buttonsText}>Confirm</Text>
                             </TouchableOpacity >
                         </View>
-
                     </Callout>
                 </View>
             </Marker>
@@ -222,7 +220,9 @@ if (isLogged){
                 }
             </MapView>
             <View style={{marginTop:650}}>
-                <Button title='List Mode' onPress={() => this.props.navigation.navigate('StaduimOnList')}/>
+                <Button title='List Mode' onPress={() => this.props.navigation.navigate('StaduimOnList',{
+                    UserLocation:this.state.initialPosition,
+                })}/>
             </View>
 
         </View>

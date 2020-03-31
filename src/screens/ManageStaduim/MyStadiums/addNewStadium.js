@@ -221,7 +221,7 @@ export default class addNewStadium extends React.Component{
                             onChangeText={text => this.setState({ query: text })}
                             placeholder="Enter city here"
                             renderItem={({ item }) => (
-                                <TouchableOpacity onPress={() => {this.setState({ city: item.City, query: '' });this.setModalVisible(false);}}>
+                                <TouchableOpacity onPress={() => {this.setState({ city: item.City, query: '' });this.setModalVisible(false)}}>
                                     <Text style={styles.itemText}>
                                         {item.City}
                                     </Text>

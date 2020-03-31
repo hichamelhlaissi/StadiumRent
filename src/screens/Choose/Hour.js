@@ -11,6 +11,8 @@ export default class Hour extends Component {
         super(props);
         const {state} = props.navigation;
         this.stadiumName = state.params.stadiumName;
+        this.city = state.params.city;
+        this.stadiumAddress= state.params.stadiumAddress;
         this.IdResponsible=state.params.IdResponsible;
         this.IdStaduim=state.params.IdStaduim;
     }
@@ -20,11 +22,11 @@ export default class Hour extends Component {
         // TodayDate:this.Today.getDate() + "/"+ parseInt(this.Today.getMonth()+1) +"/"+ this.Today.getFullYear(),
 
         Info: [
-            { Hour: '9 -> 10', date: this.Today, StadeName: 'Soccer Dar Lhamra' },
-            { Hour: '10 -> 11', date: 'TodayDate', StadeName: 'Soccer Dar Lhamra'},
-            { Hour: '11 -> 12', date: 'TodayDate', StadeName: 'Soccer Dar Lhamra' },
-            { Hour: '12 -> 13', date: 'TodayDate', StadeName: 'Soccer Dar Lhamra' },
-            { Hour: '13 -> 14', date: 'TodayDate', StadeName: 'Soccer Dar Lhamra'},
+            { StartHour: '9', EndHour: '10',date: this.Today, StadeName: 'Soccer Dar Lhamra' },
+            { StartHour: '10',EndHour: '11', date: 'TodayDate', StadeName: 'Soccer Dar Lhamra'},
+            { StartHour: '11', EndHour: '12',date: 'TodayDate', StadeName: 'Soccer Dar Lhamra' },
+            { StartHour: '12', EndHour: '13',date: 'TodayDate', StadeName: 'Soccer Dar Lhamra' },
+            { StartHour: '13', EndHour: '14',date: 'TodayDate', StadeName: 'Soccer Dar Lhamra'},
         ],
 
         modalVisible: false,
@@ -55,7 +57,7 @@ export default class Hour extends Component {
                                     <View style={styles.cardStyle} key={Info.id}>
                                         <View style={styles.infos}>
                                             <View style={styles.feedbacksView}>
-                                                <Text style={styles.HourInfo}>{Info.Hour}</Text>
+                                                <Text style={styles.HourInfo}>{Info.StartHour} -> {Info.EndHour}</Text>
                                                 <FontAwesome style={styles.Calendar} name='calendar' size={20} />
                                                 <Text style={styles.HourInfo}>{TodayDate}</Text>
                                             </View>
@@ -67,8 +69,11 @@ export default class Hour extends Component {
                                         <TouchableOpacity style={styles.Button} onPress={() =>
                                             this.props.navigation.navigate('Order_Summary', {
                                                 stadiumName:this.stadiumName,
+                                                stadiumAddress:this.stadiumAddress,
+                                                city : this.city,
                                                 Day:TodayDate,
-                                                Hour: Info.Hour,
+                                                StartHour: Info.StartHour,
+                                                EndHour:Info.EndHour,
                                                 IdResponsible: this.IdResponsible,
                                                 IdStaduim: this.IdStaduim,
                                             })}>
