@@ -4,7 +4,8 @@ import Header from "../shared/header";
 import React from 'react';
 import ChooseStadium from "../screens/Subscriptions/ChooseStadium";
 import ChooseTime from "../screens/Subscriptions/ChooseTime";
-
+import RequestSentSubscription from "../screens/Subscriptions/RequestSent";
+import StaduimsOnListSubscription from "../screens/Subscriptions/StaduimsOnListSubscription";
 const screens = {
     Subscriptions:{
         screen: Subscriptions,
@@ -24,6 +25,20 @@ const screens = {
         screen: ChooseTime,
         navigationOptions: {
             title: 'Choose time',
+        }
+    },
+    StaduimsOnListSubscription: {
+        screen: StaduimsOnListSubscription,
+        navigationOptions: {
+            title: 'Choose stadium list',
+        }
+    },
+    RequestSentSubscription: {
+        screen: RequestSentSubscription,
+        navigationOptions: ({ navigation }) => {
+            return {
+                header: null,
+            }
         }
     },
 

@@ -123,7 +123,7 @@ export default class Profile extends React.Component{
                 Phone_Number: DataInput.Phone_Number,
             }, function (error) {
                 if (error) {
-                    Alert.alert('Error', error)
+                    Alert.alert('Error', error.message)
                 } else {
                     console.log('success');
                 }

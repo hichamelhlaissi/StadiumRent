@@ -38,6 +38,8 @@ export default class addNewStadium extends React.Component{
             lat: 1,
             lng: 1,
         },
+        Data:{},
+        user:{},
         longitude: null,
         latitude: null,
         isLoading: false,
@@ -79,6 +81,7 @@ export default class addNewStadium extends React.Component{
 
     componentDidMount() {
         this.getCities();
+        this.GetUserData();
     }
 
 
@@ -146,39 +149,56 @@ export default class addNewStadium extends React.Component{
     goChooseStadiumLocation(){
         this.props.navigation.navigate('stadiumLocation');
     };
+    GetUserData =(dataUser,isEmailVerified, Change=()=>this.setState({Data:dataUser,isLoading:false}))=>{
+        this.state.user = auth.currentUser;
+        let userCon = this.state.user.uid;
+        let ref = db.ref("/users");
+        let query = ref.orderByChild("uid").equalTo(userCon);
+        query.once("value", function(snapshot, dataU) {
+            snapshot.forEach(function(child) {
+                dataU = child.val();
+                dataUser = dataU;
+                Change();
+            });
+        });
+    };
     onAllDone(){
+        this.state.user = auth.currentUser;
         if (this.state.stadiumName === ""|| this.state.city === "" || this.state.responsibleName === "" || this.state.phoneNumber === "" || this.state.stadiumAddress === "" || Object.keys(this.state.images).length   === 0){
             Alert.alert('Attention!!', 'Please fill the required fields.. All the fields are required except: description');
         }else if(!this.state.isChecked){
             Alert.alert('Please accept our terms and conditions to continue');
         } else {
-            // console.log("Stadium name: "+this.state.stadiumName+" // Responsible name: "+this.state.responsibleName+" // Phone number: "+this.state.phoneNumber+" // Address: "+this.state.stadiumAddress+" // Description: "+this.state.description);
-            // console.log(this.state.images)
-            this.state.isLoading = true;
-            for (let image of this.state.images){
-                //console.log(image.name);
+
+            if ((this.state.Data.FirstName === "") || (this.state.Data.LastName === "") || (this.state.Data.Phone_Number === "") || (!this.state.user.emailVerified)){
+                this.props.navigation.navigate('Profile');
+                this.setState({isLoading:false});
+            }else {
+                this.state.isLoading = true;
+                for (let image of this.state.images){
                     this.uploadImage(image.uri, image.name);
                     this.state.imagesDb.push({file: image.name+auth.currentUser.uid});
+                }
+                db.ref('/stadiums').push({
+                    uid: auth.currentUser.uid,
+                    stadiumName: this.state.stadiumName,
+                    responsibleName: this.state.responsibleName,
+                    phoneNumber: this.state.phoneNumber,
+                    stadiumAddress: this.state.stadiumAddress,
+                    description: this.state.description,
+                    status: this.state.status,
+                    images: this.state.imagesDb,
+                    payment: this.state.payment,
+                    latitude: this.state.latitude,
+                    longitude: this.state.longitude,
+                    city: this.state.city,
+                    stadiumId: ""
+                }).then(data => {
+                    this.state.isLoading = false;
+                    this.props.navigation.navigate('MyStaduim')
+                });
             }
-            db.ref('/stadiums').push({
-                uid: auth.currentUser.uid,
-                stadiumName: this.state.stadiumName,
-                responsibleName: this.state.responsibleName,
-                phoneNumber: this.state.phoneNumber,
-                stadiumAddress: this.state.stadiumAddress,
-                description: this.state.description,
-                status: this.state.status,
-                images: this.state.imagesDb,
-                payment: this.state.payment,
-                latitude: this.state.latitude,
-                longitude: this.state.longitude,
-                city: this.state.city,
-                stadiumId: ""
-        }).then(data => {
-                this.state.isLoading = false;
-                this.props.navigation.navigate('MyStaduim')
-                console.log(data.phoneNumber)
-            });
+
         }
     };
     render() {

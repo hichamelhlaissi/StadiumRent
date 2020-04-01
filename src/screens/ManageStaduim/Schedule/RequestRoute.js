@@ -1,22 +1,10 @@
 import React, {Component} from 'react';
-import {
-    Alert,
-    Button,
-    Image,
-    Modal,
-    RefreshControl,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
-} from 'react-native';
+import {Alert, Button, Image, Modal, RefreshControl, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import ModalWrapper from "react-native-modal-wrapper";
 import {APPROX_STATUSBAR_HEIGHT} from "react-native-paper/src/constants";
 import {auth, db} from "../../../services/FireBaseConfig";
-import {FontAwesome} from '@expo/vector-icons';
+import {FontAwesome, MaterialIcons} from '@expo/vector-icons';
 import {IsOrderDone, IsOrderValid} from "../../Orders/RequestRoute";
 
 
@@ -49,11 +37,10 @@ export default class RequestRoute extends Component {
         if (message.length > 0){
             this.setState({isLoading: true});
             let IdOrder =this.state.Cancel;
-            console.log(IdOrder);
             setTimeout(function () {
                 db.ref("/orders/"+IdOrder).update({
                     Status: 'Canceled',
-                    Canceled: message,
+                    Canceled: 'Owner :'+message,
                 }, function (error) {
                     if (error) {
                         Alert.alert('Error', error)
@@ -89,6 +76,22 @@ export default class RequestRoute extends Component {
         this.setState({modalVisible: visible});
     };
 
+    AcceptOrder=(IdOrders, Change=()=>this.setState({ Orders:[]}))=>{
+        this.setState({isLoading: true});
+        setTimeout(function () {
+            db.ref("/orders/"+IdOrders).update({
+                Status: 'Accepted',
+            }, function (error) {
+                if (error) {
+                    Alert.alert('Error', error)
+                } else {
+                    console.log('success');
+                }
+                Change()
+            }).then(r =>set());
+        },1000);
+      const set=()=> this.getRequestOrders();
+    };
 
     CardList = ({Orders: {uid,StartHour, EndHour, Day, stadiumName,stadiumAddress,city,IdStaduim, Status, IdResponsible}, IdOrders}) => {
 
@@ -107,7 +110,7 @@ export default class RequestRoute extends Component {
                     </View>
                     <View style={styles.buttonsView}>
                         <TouchableOpacity style={styles.buttons} onPress={() => {
-                            this.setState({Sender: IdStaduim})
+                            this.AcceptOrder(IdOrders)
                         }}>
                             <Text style={styles.buttonsText}><Icon name="map-marker-alt" size={15}
                                                                    color="#EAE114"/> Accept</Text>
@@ -116,7 +119,7 @@ export default class RequestRoute extends Component {
                             this.setModalVisible(true);
                             this.setState({Cancel: IdOrders})
                         }}>
-                            <Text style={styles.buttonsText}>Cancel</Text>
+                            <Text style={styles.buttonsText}><MaterialIcons name="cancel" size={20} color="black"/> Cancel</Text>
                         </TouchableOpacity>
                     </View>
                 </View>

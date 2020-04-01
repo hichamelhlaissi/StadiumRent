@@ -1,13 +1,15 @@
 import React from 'react';
-import {Alert, StyleSheet, Text, TouchableOpacity, View, TextInput} from 'react-native';
+import {Alert, StyleSheet, Text, TouchableOpacity, View, TextInput, ActivityIndicator} from 'react-native';
 import Geocoder from 'react-native-geocoding';
 import RNPickerSelect from 'react-native-picker-select';
 import Icon from 'react-native-vector-icons/Entypo';
+import {auth, db} from "../../services/FireBaseConfig";
 
 
 export default class ChooseTime extends React.Component{
     state = {
         street_number: "",
+        isLoading: true,
         route: "",
         subLocality: "",
         locality: "",
@@ -24,21 +26,34 @@ export default class ChooseTime extends React.Component{
             { label: '13:00 -> 14:00', value: '13:00 -> 14:00' },
             { label: '14:00 -> 15:00', value: '14:00 -> 15:00' },
             { label: '15:00 -> 16:00', value: '15:00 -> 16:00' },
+            { label: '16:00 -> 17:00', value: '16:00 -> 17:00' },
+            { label: '17:00 -> 18:00', value: '17:00 -> 18:00' },
+            { label: '18:00 -> 19:00', value: '18:00 -> 19:00' },
+            { label: '19:00 -> 20:00', value: '19:00 -> 20:00' },
+            { label: '20:00 -> 21:00', value: '20:00 -> 21:00' },
+            { label: '21:00 -> 22:00', value: '21:00 -> 22:00' },
+            { label: '22:00 -> 23:00', value: '22:00 -> 23:00' },
+            { label: '23:00 -> 00:00', value: '23:00 -> 00:00' },
         ]
     };
     constructor(props){
         super(props);
         const {state} = props.navigation;
-        let data1 = this.props.navigation.getParam('data1');
-
+        let latitude = this.props.navigation.getParam('latitude');
+        let longitude = this.props.navigation.getParam('longitude');
+        this.stadiumName = state.params.stadiumName;
+        this.city = state.params.city;
+        this.stadiumAddress= state.params.stadiumAddress;
+        this.IdResponsible=state.params.IdResponsible;
+        this.IdStaduim=state.params.IdStaduim;
+        console.log(this.stadiumName,this.city,this.stadiumAddress,this.IdResponsible,this.IdStaduim,'-------');
             Geocoder.init("AIzaSyCoIzI4JvkT0MjvaBXH-OSt6d6pYuU1dMg");
-            Geocoder.from(data1.lat, data1.lng).then(json => {
+            Geocoder.from(latitude, longitude).then(json => {
                 this.state.street_number = json.results[0].address_components[0].long_name;
                 this.state.route = json.results[0].address_components[1].long_name;
                 this.state.subLocality = json.results[0].address_components[2].long_name;
                 this.state.locality = json.results[0].address_components[3].long_name;
                 this.setState({fullAddress: this.state.street_number+", "+this.state.route+", "+this.state.subLocality+", "+this.state.locality});
-                console.log(this.state.fullAddress);
             });
     }
     onSelectDay(value) {
@@ -53,7 +68,58 @@ export default class ChooseTime extends React.Component{
     onSubscriptionName(value) {
         this.setState({subscriptionName: value});
     }
+    componentDidMount() {
+        setInterval(function () {
+            Set();
+        },500);
+        const Set=()=>this.setState({isLoading: false});
+    }
+
+    addSubscription=(Sent=()=>this.props.navigation.navigate('RequestSentSubscription'))=>{
+        if (this.state.subscriptionName === "" || this.state.day === null || this.state.hour === null || this.state.payment === "")
+        {
+            Alert.alert('Error!!', 'Please enter all information')
+        }else{
+            this.setState({isLoading: true});
+            setTimeout(function () {
+                AddSub();
+            },1000);
+            const AddSub=()=>{
+                db.ref('/subscription').push({
+                    uid: auth.currentUser.uid,
+                    stadiumName: this.stadiumName,
+                    city : this.city,
+                    stadiumAddress: this.stadiumAddress,
+                    IdResponsible: this.IdResponsible,
+                    IdStaduim: this.IdStaduim,
+                    payment:this.state.payment,
+                    Hour:this.state.hour,
+                    subscriptionName:this.state.subscriptionName,
+                    Day:this.state.day,
+                    Status:'Pending',
+                    Message: '',
+                }, function (error) {
+                    if (error) {
+                        Alert.alert('Error', error)
+                    } else {
+                        console.log('success');
+                        Sent();
+                    }
+                });
+                set();
+            };
+          const set=()=> this.setState({day: "", hour: "", payment: "", subscriptionName: "", isLoading: false});
+        }
+    };
+
     render() {
+        if (this.state.isLoading) {
+            return (
+                <View style={{ flex: 1, padding: 20 }}>
+                    <ActivityIndicator size={50} shouldRasterizeIOS={true}/>
+                </View>
+            );
+        }
         return (
             <View style={styles.container}>
                 <View style={styles.allContent}>
@@ -107,7 +173,7 @@ export default class ChooseTime extends React.Component{
                         </View>
                     </View>
                 </View>
-                <TouchableOpacity style={styles.nextButton} onPress={() => Alert.alert('Action!','Done')}>
+                <TouchableOpacity style={styles.nextButton} onPress={() => this.addSubscription()}>
                     <Text style={styles.nextButtonText}>Send request</Text>
                 </TouchableOpacity>
             </View>

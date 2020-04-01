@@ -17,7 +17,7 @@ import ModalWrapper from "react-native-modal-wrapper";
 import {APPROX_STATUSBAR_HEIGHT} from "react-native-paper/src/constants";
 import {auth, db} from "../../services/FireBaseConfig";
 import ShowOnMap from "./ShowOnMap";
-import {FontAwesome, Entypo} from '@expo/vector-icons';
+import {FontAwesome, Entypo, MaterialIcons} from '@expo/vector-icons';
 import RequestRoute, {IsOrderValid, IsOrderDone} from "./RequestRoute";
 
 
@@ -29,6 +29,7 @@ export default class ScheduledRoute extends Component {
         this.state = {
             modalVisible: false,
             modalShowOnMap:false,
+            modalVisibleReport: false,
             isLoading: true,
             messageCancellation: "",
             refreshing: false,
@@ -37,6 +38,8 @@ export default class ScheduledRoute extends Component {
             Sender:'',
             Cancel:'',
             Check:false,
+            messageReport:'',
+            dataReport:{},
         };
     };
 
@@ -90,6 +93,12 @@ export default class ScheduledRoute extends Component {
     };
     setModalVisible(visible) {
         this.setState({modalVisible: visible});
+    };
+    CloseModalReport =()=>{
+        this.setModalVisibleReport(false);
+    };
+    setModalVisibleReport(visible) {
+        this.setState({modalVisibleReport: visible});
     };
     CloseModalShowOnMap =()=>{
         this.modalShowOnMap(false);
@@ -148,7 +157,6 @@ export default class ScheduledRoute extends Component {
                         console.log('success');
                     }
                 });
-
             }
         });
 
@@ -189,10 +197,12 @@ export default class ScheduledRoute extends Component {
                                 style={styles.buttonsText}> Add to favorite</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={[styles.buttons, {marginTop: 12}]} onPress={() => {
-                            this.setModalVisible(true);
-                            this.setState({Cancel: IdOrders})
+                            {this.setModalVisibleReport(true);
+                                this.setState({dataReport: {IdOrders, uid, IdResponsible, IdStaduim}})
+
+                            }
                         }}>
-                            <Text style={styles.buttonsText}>Cancel</Text>
+                            <Text style={styles.buttonsText}><MaterialIcons name="report" size={20} color="black"/> Report</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -212,6 +222,33 @@ export default class ScheduledRoute extends Component {
                 });
             }).then( r =>Set());
         },200);
+
+    };
+    onReport=(message, Change=()=>this.setState({ Orders:[]}))=>{
+        if (message.length > 0){
+            this.setState({isLoading: true});
+            let Report = this.state.dataReport;
+            console.log(Report);
+            setTimeout(function () {
+                db.ref('/userReports').push({
+                    uid: Report.uid,
+                    IdResponsible: Report.IdResponsible,
+                    IdStaduim: Report.IdStaduim,
+                    IdOrders : Report.IdOrders,
+                    messageReport: message,
+                }, function (error) {
+                    if (error) {
+                        Alert.alert('Error', error)
+                    } else {
+                        console.log('success');
+                    }
+                    Change();
+                }).then(r =>set());
+            },1000);
+            const set=()=> {this.getScheduledOrders(); this.setState({messageReport:{}})};
+        }else {
+            Alert.alert('Error!!','Your report message is empty');
+        }
 
     };
     render() {
@@ -269,6 +306,39 @@ export default class ScheduledRoute extends Component {
 
                                     <Button title="CANCEL" type="regular" onPress={() => {this.setModalVisible(!this.state.modalVisible);}} />
                                     <Button title="SEND" type="primary" onPress={() => {this.setModalVisible(!this.state.modalVisible);this.cancelOrder(this.state.messageCancellation)}} />
+                                </View>
+                            </View>
+                        </View>
+                    </ModalWrapper>
+
+                    <ModalWrapper
+                        animationType="slide"
+                        style={{ width: 280, height: 400, paddingLeft: 24, paddingRight: 24 }}
+                        transparent={false}
+                        visible={this.state.modalVisibleReport}
+                    >
+                        <View style={{marginTop: 22}}>
+                            <View>
+                                <View style={styles.textAreaContainer} >
+                                    <TextInput
+                                        style={styles.textArea}
+                                        underlineColorAndroid="transparent"
+                                        placeholder="Enter your report reason"
+                                        placeholderTextColor="grey"
+                                        numberOfLines={10}
+                                        multiline={true}
+                                        value={this.state.messageReport}
+                                        onChangeText={e => {
+                                            this.setState({
+                                                messageReport: e,
+                                            });
+                                        }}
+                                    />
+                                </View>
+                                <View style={styles.cancelButtons}>
+
+                                    <Button title="CANCEL" type="regular" onPress={() => {this.setModalVisibleReport(!this.state.modalVisibleReport);}} />
+                                    <Button title="SEND" type="primary" onPress={() => {this.setModalVisibleReport(!this.state.modalVisibleReport);this.onReport(this.state.messageReport)}} />
                                 </View>
                             </View>
                         </View>

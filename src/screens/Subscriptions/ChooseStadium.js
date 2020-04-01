@@ -1,48 +1,61 @@
-import React from 'react';
-import {Alert, StyleSheet, Text, TouchableOpacity, View, AppState} from 'react-native';
-import MapView, { PROVIDER_GOOGLE, Marker, Callout, Polygon, Circle, Polyline } from 'react-native-maps';
+import React, {Component} from 'react';
+import {
+    ActivityIndicator,
+    Alert,
+    AppState,
+    Button,
+    Image,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
+} from 'react-native';
+import {auth, db} from '../../services/FireBaseConfig';
+import Constants from 'expo-constants';
 import * as Location from 'expo-location';
 import * as Permissions from 'expo-permissions';
+import MapView, {Callout, Marker, PROVIDER_GOOGLE} from 'react-native-maps'
+import {Linking} from 'expo';
 import * as IntentLauncher from 'expo-intent-launcher';
-import Path from './Path'
-import {Spinner} from "native-base";
-import Constants from 'expo-constants';
+import {MaterialCommunityIcons} from '@expo/vector-icons';
+import StarRating from "react-native-star-rating";
 
-export default class ChooseStadium extends React.Component {
-    state = {
-        locationpermission :false,
-        departinfo:{},
-        //pathsShowing: true,
-        destinationinfo:{},
-        location: null,
-        errorMessage: null,
-        markers: [],
-        appState: AppState.currentState,
-        coordinates: [
-            { name: 'Hamid', latitude: 34.066645, longitude: -6.762011, image: require('../../../assets/Images/image.jpg') },
-            { name: 'Rachel', latitude: 34.076353, longitude: -6.754076, image: require('../../../assets/Images/image.jpg') },
-            { name: 'HASHIM', latitude: 34.077499, longitude: -6.759966, image: require('../../../assets/Images/image.jpg') },
-            { name: 'Fared', latitude: 34.062096, longitude: -6.772277, image: require('../../../assets/Images/image.jpg') },
-            { name: 'Saber', latitude: 34.056736, longitude: -6.771318, image: require('../../../assets/Images/image.jpg') },
-        ],
-    };
-    constructor(props) {
+
+export default class ChooseStadium extends Component {
+    constructor(props){
         super(props);
+        let isLogged = auth.currentUser;
         const {state} = props.navigation;
-        // N’appelez pas `this.setState()` ici !
-        if (Platform.OS === 'android' && !Constants.isDevice || Platform.OS === 'ios' && !Constants.isDevice) {
-            this.setState({
-                errorMessage: 'Oops, this will not work on Sketch in an Android emulator. Try it on your device!',
-            });
-        } else {
-            this._getLocationAsync();
-        }
-        Location.hasServicesEnabledAsync().then(
-            data=>{
-                console.log(data)
+        this.state = {
+            starField: 3.5,
+            starCount: 5,
+            locationPermission :false,
+            isLoading:true,
+            user:{},
+            userInfo:{},
+            dataSource:{},
+            Data: {},
+            location: null,
+            errorMessage: null,
+            markers: [],
+            appState: AppState.currentState,
+            stadiums: []
+        };
+        if (isLogged){
+
+            if (Platform.OS === 'android' && !Constants.isDevice || Platform.OS === 'ios' && !Constants.isDevice) {
+                this.setState({
+                    errorMessage: 'Oops, this will not work on Sketch in an Android emulator. Try it on your device!',
+                });
+            } else {
+                this._getLocationAsync();
             }
-        )
+            Location.hasServicesEnabledAsync();
+        }
+
+
     }
+
     _getLocationAsync = async () => {
         let { status } = await Permissions.askAsync(Permissions.LOCATION);
         if (status !== 'granted') {
@@ -60,14 +73,7 @@ export default class ChooseStadium extends React.Component {
         };
         this.setState({
             initialPosition,
-            locationpermission:true,
-            departinfo:{
-                lat: location.coords.latitude,
-                lng: location.coords.longitude,
-            },
-            pathsShowing: true,
-        });
-
+            locationPermission:true});
 
     };
     requestlocation =()=>{
@@ -86,7 +92,7 @@ export default class ChooseStadium extends React.Component {
 
     };
     goToSettings = () => {
-        if (Platform.OS == 'ios') {
+        if (Platform.OS === 'ios') {
             // Linking for iOS
             Linking.openURL('app-settings:')
 
@@ -97,74 +103,101 @@ export default class ChooseStadium extends React.Component {
             );
         }
     };
-    departmarker=()=>{
-        if(Object.keys(this.state.departinfo).length   != 0){
-            return (
-                <Marker
-                    pinColor={'rgba(38, 114, 227, 1)'}
-                    coordinate={{latitude: this.state.departinfo.lat, longitude: this.state.departinfo.lng}}
-                >
-                    <Callout>
-                        <Text>My position</Text>
-                    </Callout>
-                </Marker>
-            )
-        }
-    };
-    destinationmarker=()=>{
-        if(Object.keys(this.state.destinationinfo).length   != 0){
-            return (
-                <Marker
-                    pinColor={'rgb(255,4,0)'}
-                    coordinate={{latitude: this.state.destinationinfo.lat, longitude: this.state.destinationinfo.lng}}
-                >
-                    <Callout>
-                        <Text>Stadium location</Text>
-                    </Callout>
-                </Marker>
-            )
-        }
-    };
-    searchInterface=()=>{
-        if(this.state.locationpermission){
-            return(<View style={styles.search}>
-                <Path
-                    departinfo={this.state.departinfo}
-                    handledepart={this.notifydepart}
-                    handledestination={this.notifydestination}>
-                </Path>
-            </View>)
-        }else{
-            return(
-                <View style={styles.search}>
-                    <Spinner color='black' />
-                </View>
-            )
-        }
-    };
-    notifydepart=(depart)=>{
-        if(depart){
-            this.setState({departinfo:depart})
-        }
-    };
-    notifydestination=(destination)=>{
-        if(destination){
-            this.setState({destinationinfo:destination});
-        }
-    };
-    goNext=()=>{
-        if (Object.keys(this.state.destinationinfo).length   !== 0){
-            this.props.navigation.navigate('ChooseTime', {data1:this.state.destinationinfo});
-        }else {
-            Alert.alert('Attention!','Choose the stadium first');
-        }
+
+    componentDidMount() {
+        this.getStaduimOnMap();
+    }
+    onStarRatingPress(rating) {
+        this.setState({
+            starCount: 5
+        });
+    }
+    onStarRatingPressField(rating) {
+        this.setState({
+            starField: 3.5
+        });
+    }
+    getStaduimOnMap =(Data,Change=()=>{this.setState({stadiums: Data, isLoading:false})})=>{
+        setTimeout(function(){
+            db.ref('/stadiums').on('value', querySnapShot => {
+                let data = querySnapShot.val() ? querySnapShot.val() : {};
+                Data= {...data};
+                Change();
+            });
+        }, 3000);
     };
 
+    StadiumList = ({stadiums: {stadiums: images,latitude,longitude, responsibleName, stadiumName, stadiumAddress, phoneNumber, uid,city},IdStaduim}) => {
+        return(
+            <Marker coordinate={{ latitude: latitude, longitude: longitude }}>
+                <View style={styles.cardStyle}>
+                    <Callout onPress={() => this.props.navigation.navigate('ChooseTime', {
+                        stadiumName:stadiumName,
+                        stadiumAddress:stadiumAddress,
+                        city:city,
+                        IdResponsible:uid,
+                        IdStaduim:IdStaduim,
+                        latitude:latitude,
+                        longitude:longitude,
+                    })}>
+                        <Text style={styles.subscriptionName}><MaterialCommunityIcons name='soccer-field' size={20} style={{marginTop:5}} color="#9b9b9b"/>  {stadiumName}</Text>
+                        <View style={styles.feedbacksView}>
+                            <StarRating
+                                disabled={false}
+                                maxStars={5}
+                                containerStyle={styles.starsView}
+                                starSize={17}
+                                rating={this.state.starField}
+                                selectedStar={(rating) => this.onStarRatingPressField(rating)}
+                                fullStarColor={'#1db700'}
+                                emptyStarColor={'#1db700'}
+                            />
+                            <Text style={styles.feedbacksNumber}>(22)</Text>
+                        </View>
+                        <Text style={{marginLeft:50}}>70m</Text>
+                        <View style={styles.infos}>
+                            <Text>Address : <Text style={{color: '#9b9b9b'}}>{stadiumAddress}</Text></Text>
+                            <Text>Phone Number: <Text style={{color: '#9b9b9b'}}>{phoneNumber}</Text></Text>
+                            <Text>City: <Text style={{color: '#9b9b9b'}}>{city}</Text></Text>
+                            <Text>Last Feedback :</Text>
+                            <View style={styles.feedbacksView}>
+                                <StarRating
+                                    disabled={false}
+                                    maxStars={5}
+                                    containerStyle={styles.starsView}
+                                    starSize={17}
+                                    rating={this.state.starCount}
+                                    selectedStar={(rating) => this.onStarRatingPress(rating)}
+                                    fullStarColor={'#1db700'}
+                                    emptyStarColor={'#1db700'}
+                                />
+                                <Text style={styles.feedbacksNumber}>Nice</Text>
+                            </View>
+
+                        </View>
+                        <View style={styles.buttonsView}>
+                            <TouchableOpacity style={styles.buttons} onPress={() => this.props.navigation.navigate('ChooseTime', {
+                                stadiumName:stadiumName,
+                                IdResponsible:uid,
+                                IdStaduim:IdStaduim,
+                            })}>
+                                <Text style={styles.buttonsText}>Confirm</Text>
+                            </TouchableOpacity >
+                        </View>
+                    </Callout>
+                </View>
+            </Marker>
+        )
+    };
     render() {
-        let LatLng = {
-            latitude: 1,
-            longitude: 1,
-        };
+        if (this.state.isLoading) {
+            return (
+                <View style={{ flex: 1, padding: 20 }}>
+                    <ActivityIndicator />
+                </View>
+            );
+        }
+        let keys = Object.keys(this.state.stadiums);
         return (
             <View style={styles.container}>
                 <MapView style={styles.map}
@@ -173,82 +206,97 @@ export default class ChooseStadium extends React.Component {
                          showsUserLocation={true}
                          initialRegion={this.state.initialPosition}
                 >
-                    <MapView.Circle
-                        center={LatLng}
-                        radius={2000}
-                        fillColor={'rgba(255,157,245,0.5)'}
-                    />
-
-                    {/* {
-                        this.state.coordinates.map((marker, index) => (
-                            <Marker
-                                key={marker.name}
-                                ref={ref => this.state.markers[index] = ref}
-                                onPress={() => this.onMarkerPressed(marker, index)}
-                                coordinate={{ latitude: marker.latitude, longitude: marker.longitude }}
-                               // icon={require('../../assets/Images/taxi.png')}
-                            >
-                                <Callout>
-                                    <Text>{marker.name}</Text>
-                                </Callout>
-                            </Marker>
-                        ))
-                    } */}
-
-                    {this.departmarker()}
-                    {this.destinationmarker()}
-                    {/*{*/}
-                    {/*    this.state.pathsShowing ? <Polyline*/}
-                    {/*        coordinates={[*/}
-                    {/*            { latitude:  this.state.departinfo.lat, longitude: this.state.departinfo.lng },*/}
-                    {/*            { latitude:  this.state.destinationinfo.lat, longitude: this.state.destinationinfo.lng }*/}
-                    {/*        ]}*/}
-                    {/*        strokeColor="#000" // fallback for when `strokeColors` is not supported by the map-provider*/}
-                    {/*        strokeColors={[*/}
-                    {/*            '#7F0000',*/}
-                    {/*            '#00000000', // no color, creates a "long" gradient between the previous and next coordinate*/}
-                    {/*            '#B24112',*/}
-                    {/*            '#E5845C',*/}
-                    {/*            '#238C23',*/}
-                    {/*            '#7F0000'*/}
-                    {/*        ]}*/}
-                    {/*        strokeWidth={6}*/}
-                    {/*    />*/}
-                    {/*    : <View></View>*/}
-                    {/*}*/}
+                    {
+                        keys.map(key => {
+                            return (
+                                <View style={styles.cardList} key={key}>
+                                    <this.StadiumList
+                                        stadiums={this.state.stadiums[key]}
+                                        IdStaduim={key}
+                                    />
+                                </View>
+                            )
+                        })
+                    }
                 </MapView>
-                {this.searchInterface()}
-                <TouchableOpacity style={styles.nextButton} onPress={() => this.goNext()}>
-                    <Text style={styles.nextButtonText}>Go to choose the time</Text>
-                </TouchableOpacity >
+                <View style={{marginTop:650}}>
+                    <Button title='List Mode' onPress={() => this.props.navigation.navigate('StaduimsOnListSubscription',{
+                        UserLocation:this.state.initialPosition,
+                    })}/>
+                </View>
+
             </View>
-        );
+        )
     }
 }
-
 const styles = StyleSheet.create({
     container: {
-        ...StyleSheet.absoluteFillObject,
-        flexDirection: 'column',
-        justifyContent: 'space-between'
+        flex: 1,
     },
     map: {
         ...StyleSheet.absoluteFillObject
     },
-    nextButton: {
-        backgroundColor: "#5780D9",
+    paragraph: {
+        margin: 24,
+        fontSize: 18,
+        textAlign: 'center',
+    },
+    feedbacksNumber: {
+        color: 'rgba(32,5,13,0.96)',
+        fontSize: 12,
+    },
+    textStyle: {
+        width: 100,
+        height: 1000,
+    },
+    starsView: {
+        width: 80,
+        marginLeft: 15,
+        marginRight: 10,
+    },
+    feedbacksView: {
+        flexDirection: 'row',
+    },
+    cardStyle: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+
+        height: 150,
+        width: 300,
+        marginTop: 10,
+        borderRadius: 30/2,
+    },
+    subscriptionName: {
+        color: '#000',
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginTop: 8,
+        marginLeft: 15
+    },
+    infos: {
+        flexDirection: 'column',
+        marginTop: 8,
+    },
+    buttonsView: {
+        width:100,
+        flexDirection: 'column',
+        justifyContent: 'center',
+        marginLeft: 80,
+        marginTop:20,
+    },
+    buttons: {
+        borderRadius: 30/2,
+        backgroundColor: "#E8F7FF",
+        paddingTop: 6,
+        paddingBottom: 6,
         paddingLeft: 12,
         paddingRight: 12,
-        marginTop: 5,
-        width: '100%',
-        height: 50,
-        justifyContent: 'center',
     },
-    nextButtonText: {
-        fontSize: 14,
-        color: "#ffffff",
+
+    buttonsText: {
+        fontSize: 12,
+        color: "#5780D9",
         textTransform: "uppercase",
         textAlign: "center",
-        fontWeight: 'bold',
-    }
+    },
 });
