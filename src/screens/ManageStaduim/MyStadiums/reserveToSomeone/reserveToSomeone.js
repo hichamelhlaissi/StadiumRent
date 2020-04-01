@@ -8,7 +8,7 @@ import {auth, db, storage} from './../../../../services/FireBaseConfig';
 
 
 
-export default class stadiumProgram extends Component {
+export default class reserveToSomeone extends Component {
     constructor(props) {
         super(props);
         const {state} = props.navigation;
@@ -19,48 +19,47 @@ export default class stadiumProgram extends Component {
         DataUse: this.Today,
         // TodayDate:this.Today.getDate() + "/"+ parseInt(this.Today.getMonth()+1) +"/"+ this.Today.getFullYear(),
         Program: [
-            { id: 0, StartHour: '09', EndHour: '10', rentDate: moment(this.minDate()).format('DD/MM/YYYY'), reserved: false},
-            { id: 1, StartHour: '10', EndHour: '11', rentDate: moment(this.minDate()).format('DD/MM/YYYY'), reserved: false },
-            { id: 2, StartHour: '11', EndHour: '12', rentDate: moment(this.minDate()).format('DD/MM/YYYY'), reserved: false },
-            { id: 3, StartHour: '12', EndHour: '13', rentDate: moment(this.minDate()).format('DD/MM/YYYY'), reserved: false },
-            { id: 4, StartHour: '13', EndHour: '14', rentDate: moment(this.minDate()).format('DD/MM/YYYY'), reserved: false },
-            { id: 5, StartHour: '14', EndHour: '15', rentDate: moment(this.minDate()).format('DD/MM/YYYY'), reserved: false },
-            { id: 6, StartHour: '15', EndHour: '16', rentDate: moment(this.minDate()).format('DD/MM/YYYY'), reserved: false },
-            { id: 7, StartHour: '16', EndHour: '17', rentDate: moment(this.minDate()).format('DD/MM/YYYY'), reserved: false },
-            { id: 8, StartHour: '17', EndHour: '18', rentDate: moment(this.minDate()).format('DD/MM/YYYY'), reserved: false },
-            { id: 9, StartHour: '18', EndHour: '19', rentDate: moment(this.minDate()).format('DD/MM/YYYY'), reserved: false },
-            { id: 10, StartHour: '19', EndHour: '20', rentDate: moment(this.minDate()).format('DD/MM/YYYY'), reserved: false },
-            { id: 11, StartHour: '20', EndHour: '21', rentDate: moment(this.minDate()).format('DD/MM/YYYY'), reserved: false },
-            { id: 12, StartHour: '21', EndHour: '22', rentDate: moment(this.minDate()).format('DD/MM/YYYY'), reserved: false },
-            { id: 13, StartHour: '22', EndHour: '23', rentDate: moment(this.minDate()).format('DD/MM/YYYY'), reserved: false },
-            { id: 14, StartHour: '23', EndHour: '00', rentDate: moment(this.minDate()).format('DD/MM/YYYY'), reserved: false },
+            { id: 0, StartHour: '09', EndHour: '10', rentDate: moment(new Date()).format('DD/MM/YYYY'), reserved: false},
+            { id: 1, StartHour: '10', EndHour: '11', rentDate: moment(new Date()).format('DD/MM/YYYY'), reserved: false },
+            { id: 2, StartHour: '11', EndHour: '12', rentDate: moment(new Date()).format('DD/MM/YYYY'), reserved: false },
+            { id: 3, StartHour: '12', EndHour: '13', rentDate: moment(new Date()).format('DD/MM/YYYY'), reserved: false },
+            { id: 4, StartHour: '13', EndHour: '14', rentDate: moment(new Date()).format('DD/MM/YYYY'), reserved: false },
+            { id: 5, StartHour: '14', EndHour: '15', rentDate: moment(new Date()).format('DD/MM/YYYY'), reserved: false },
+            { id: 6, StartHour: '15', EndHour: '16', rentDate: moment(new Date()).format('DD/MM/YYYY'), reserved: false },
+            { id: 7, StartHour: '16', EndHour: '17', rentDate: moment(new Date()).format('DD/MM/YYYY'), reserved: false },
+            { id: 8, StartHour: '17', EndHour: '18', rentDate: moment(new Date()).format('DD/MM/YYYY'), reserved: false },
+            { id: 9, StartHour: '18', EndHour: '19', rentDate: moment(new Date()).format('DD/MM/YYYY'), reserved: false },
+            { id: 10, StartHour: '19', EndHour: '20', rentDate: moment(new Date()).format('DD/MM/YYYY'), reserved: false },
+            { id: 11, StartHour: '20', EndHour: '21', rentDate: moment(new Date()).format('DD/MM/YYYY'), reserved: false },
+            { id: 12, StartHour: '21', EndHour: '22', rentDate: moment(new Date()).format('DD/MM/YYYY'), reserved: false },
+            { id: 13, StartHour: '22', EndHour: '23', rentDate: moment(new Date()).format('DD/MM/YYYY'), reserved: false },
+            { id: 14, StartHour: '23', EndHour: '00', rentDate: moment(new Date()).format('DD/MM/YYYY'), reserved: false },
         ],
         newProgram: [],
         modalVisible: false,
         isLoading: false,
         stadiumName: "",
         stadiumId: "",
-        rentDate: moment(this.minDate()).format('DD/MM/YYYY'),
+        rentDate: moment(new Date()).format('DD/MM/YYYY'),
     };
 
     componentDidMount(){
-        db.ref('/stadiums/'+this.state.stadiumId+'/programs/'+moment(this.minDate()).format('DD/MM/YYYY')+'/program').on('value', querySnapShot => {
+       this.getProgram()
+    }
+    getProgram() {
+        db.ref('/stadiums/'+this.IdStaduim+'/programs/'+this.state.rentDate+'/program').on('value', querySnapShot => {
             let data = querySnapShot.val() ? querySnapShot.val() : {};
             let programs = {...data};
             this.setState({newProgram: Object.values(programs)})
         })
     }
 
-    minDate() {
-        var chosenWeekday = 1; // Monday
+    maxDate() {
+        var chosenWeekday = 7;
 
         return  chosenWeekday < moment().weekday() ? moment().weekday(chosenWeekday + 7) : moment().weekday(chosenWeekday)
     }
 
-    maxDate() {
-        let days = new Date(this.minDate());
-        return new Date(days.setTime( days.getTime() + 6 * 86400000 ));
-    }
 
     ScheduleDate = () => {
         let today = new Date();
@@ -94,17 +93,17 @@ export default class stadiumProgram extends Component {
 
             if (selectedDate !== undefined) {
                 this.setState({newPrograms: [],Program: ProgramV2, isLoading: true});
-                    db.ref('/stadiums/'+this.state.stadiumId+'/programs/'+moment(selectedDate).format('DD/MM/YYYY')+'/program').on('value', querySnapShot => {
-                        let data = querySnapShot.val() ? querySnapShot.val() : {};
-                        let programs = {...data};
-                        this.setState({newProgram: Object.values(programs)});
-                    });
-                    this.setState({rentDate: moment(selectedDate).format('DD/MM/YYYY')});
-                    let program = this.state.Program;
-                    for (let p of program){
-                        p.rentDate = moment(selectedDate).format('DD/MM/YYYY');
-                    }
-                    this.setState({Program: program, isLoading: false});
+                db.ref('/stadiums/'+this.state.stadiumId+'/programs/'+moment(selectedDate).format('DD/MM/YYYY')+'/program').on('value', querySnapShot => {
+                    let data = querySnapShot.val() ? querySnapShot.val() : {};
+                    let programs = {...data};
+                    this.setState({newProgram: Object.values(programs)});
+                });
+                this.setState({rentDate: moment(selectedDate).format('DD/MM/YYYY')});
+                let program = this.state.Program;
+                for (let p of program){
+                    p.rentDate = moment(selectedDate).format('DD/MM/YYYY');
+                }
+                this.setState({Program: program, isLoading: false});
 
             }if (selectedDate === undefined) {
                 console.log("cancel")
@@ -128,11 +127,11 @@ export default class stadiumProgram extends Component {
                 </View>
                 {show && (
                     <RNDateTimePicker
-                        maximumDate={this.maxDate()}
-                        minimumDate={new Date(this.minDate())}
+                        maximumDate={new Date(this.maxDate())}
+                        minimumDate={new Date()}
                         testID="dateTimePicker"
                         timeZoneOffsetInMinutes={0}
-                        value={new Date(this.minDate())}
+                        value={new Date()}
                         mode={mode}
                         is24Hour={true}
                         display="default"
@@ -225,36 +224,36 @@ export default class stadiumProgram extends Component {
                                         </View>
                                     )
                                 }) :
-                            this.state.Program.length > 0
-                                ? this.state.Program.map((Program) => {
-                                    return (
-                                        <View style={styles.cardStyle} key={Program.id}>
-                                            <View style={styles.infos}>
-                                                <View style={styles.feedbacksView}>
-                                                    <Text style={styles.HourInfo}>{Program.StartHour} -> {Program.EndHour}</Text>
-                                                    <FontAwesome style={styles.Calendar} name='calendar' size={20} />
-                                                    <Text style={styles.HourInfo}>{Program.rentDate}</Text>
+                                this.state.Program.length > 0
+                                    ? this.state.Program.map((Program) => {
+                                        return (
+                                            <View style={styles.cardStyle} key={Program.id}>
+                                                <View style={styles.infos}>
+                                                    <View style={styles.feedbacksView}>
+                                                        <Text style={styles.HourInfo}>{Program.StartHour} -> {Program.EndHour}</Text>
+                                                        <FontAwesome style={styles.Calendar} name='calendar' size={20} />
+                                                        <Text style={styles.HourInfo}>{Program.rentDate}</Text>
+                                                    </View>
+                                                    <View style={styles.feedbacksView}>
+                                                        <Entypo name='location-pin' size={25} />
+                                                        <Text style={styles.NameStaduim}>{this.state.stadiumName}</Text>
+                                                    </View>
                                                 </View>
-                                                <View style={styles.feedbacksView}>
-                                                    <Entypo name='location-pin' size={25} />
-                                                    <Text style={styles.NameStaduim}>{this.state.stadiumName}</Text>
-                                                </View>
+                                                {
+                                                    Program.reserved ?
+                                                        <TouchableOpacity style={styles.buttonReserved} onPress={() => this.onReserveV1(Program.id)}>
+                                                            <Text style={{textAlign: 'center', fontSize:20, marginTop: 5, color: '#fff'}}>Reserved</Text>
+                                                        </TouchableOpacity>
+                                                        :
+                                                        <TouchableOpacity style={styles.buttonReserve} onPress={() => this.onReserveV1(Program.id)}>
+                                                            <Text style={{textAlign: 'center', fontSize:20, marginTop: 5}}>Reserve</Text>
+                                                        </TouchableOpacity>
+                                                }
                                             </View>
-                                            {
-                                                Program.reserved ?
-                                                    <TouchableOpacity style={styles.buttonReserved} onPress={() => this.onReserveV1(Program.id)}>
-                                                        <Text style={{textAlign: 'center', fontSize:20, marginTop: 5, color: '#fff'}}>Reserved</Text>
-                                                    </TouchableOpacity>
-                                                    :
-                                                    <TouchableOpacity style={styles.buttonReserve} onPress={() => this.onReserveV1(Program.id)}>
-                                                        <Text style={{textAlign: 'center', fontSize:20, marginTop: 5}}>Reserve</Text>
-                                                    </TouchableOpacity>
-                                            }
-                                        </View>
-                                    )
-                                })
-                                : <View style={styles.noOrders}><Text>Empty</Text>
-                                </View>
+                                        )
+                                    })
+                                    : <View style={styles.noOrders}><Text>Empty</Text>
+                                    </View>
                     }
 
                     {
@@ -263,9 +262,9 @@ export default class stadiumProgram extends Component {
                                 <Text style={styles.doneButtonText}>Finish</Text>
                             </TouchableOpacity > :
                             this.state.Program.length > 0 && !this.state.isLoading ?
-                            <TouchableOpacity style={styles.doneButton} onPress={() => this.onFinishV1()}>
-                                <Text style={styles.doneButtonText}>Finish</Text>
-                            </TouchableOpacity > :
+                                <TouchableOpacity style={styles.doneButton} onPress={() => this.onFinishV1()}>
+                                    <Text style={styles.doneButtonText}>Finish</Text>
+                                </TouchableOpacity > :
                                 <View></View>
                     }
                 </View>
