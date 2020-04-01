@@ -50,29 +50,38 @@ export default class MyStaduims extends React.Component{
                         <Text>Responsible : <Text style={{color: '#9b9b9b'}}>{responsibleName}</Text></Text>
                         <Text>Address : <Text style={{color: '#9b9b9b'}}>{stadiumAddress}</Text></Text>
                         <Text>Phone number : <Text style={{color: '#9b9b9b'}}>{phoneNumber}</Text></Text>
-                        <Text>Payment : <Text style={{color: '#9b9b9b'}}>{payment}</Text></Text>
+                        <View style={{flexDirection: 'row', justifyContent: 'space-between', width: '80%'}}>
+                            <Text>Payment : <Text style={{color: '#9b9b9b'}}>{payment}</Text></Text>
+                            <Text style={{fontWeight: 'bold'}}>Status :
+                                {
+                                    status === "Accepted"
+                                        ? <Text style={{color: 'green'}}>
+                                            {status}
+                                        </Text>
+                                        : status === "On pending"
+                                        ? <Text style={{color: '#FFAF50'}}>
+                                            {status}
+                                        </Text>
+                                        : <Text style={{color: 'red'}}>
+                                            {status}
+                                        </Text>
+                                }
+                            </Text>
+                        </View>
                     </View>
                 </View>
-                <View style={styles.bottomView}>
-                    <Text style={{fontWeight: 'bold'}}>Status :
-                        {
-                            status === "Accepted"
-                                ? <Text style={{color: 'green'}}>
-                                    {status}
-                                </Text>
-                                : status === "On pending"
-                                ? <Text style={{color: '#FFAF50'}}>
-                                    {status}
-                                </Text>
-                                : <Text style={{color: 'red'}}>
-                                    {status}
-                                </Text>
-                        }
-                    </Text>
-                    <TouchableOpacity style={styles.buttons} onPress={() => this.props.navigation.navigate('stadiumProgram', {data1: stadiumName, data2: id})}>
-                        <Text style={styles.buttonsText}>Add scheduled to the next week</Text>
-                    </TouchableOpacity >
-                </View>
+                {
+                    status === "Accepted" ?
+                        <View style={styles.bottomView}>
+                            <TouchableOpacity style={styles.buttons} onPress={() => this.props.navigation.navigate('stadiumProgram', {data1: stadiumName, data2: id})}>
+                                <Text style={styles.buttonsText}>Add scheduled to the next week</Text>
+                            </TouchableOpacity >
+                            <TouchableOpacity style={styles.buttons} onPress={() => this.props.navigation.navigate('reserveToSomeone', {data1: stadiumName, data2: id})}>
+                                <Text style={styles.buttonsText}>Reserve to someone</Text>
+                            </TouchableOpacity >
+                        </View> :
+                        <View></View>
+                }
             </View>
         )
     };
