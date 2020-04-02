@@ -34,6 +34,7 @@ export default class Order_Summary extends Component {
         this.EndHour = state.params.EndHour;
         this.IdResponsible=state.params.IdResponsible;
         this.IdStaduim=state.params.IdStaduim;
+        this.idProgram=state.params.idProgram;
         this.state = {
             starCount: 3.7,
             user:{},
@@ -100,6 +101,7 @@ export default class Order_Summary extends Component {
                     EndHour: this.EndHour,
                     Status:'Pending',
                     Canceled:'',
+                    idProgram: this.idProgram,
                 }, function (error) {
                     if (error) {
                         errors(error.message);

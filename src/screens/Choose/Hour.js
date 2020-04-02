@@ -191,6 +191,7 @@ export default class Hour extends Component {
                                                         rentYear: this.state.rentYear,
                                                         IdResponsible: this.IdResponsible,
                                                         IdStaduim: this.IdStaduim,
+                                                        idProgram: program.id,
                                                     })}>
                                                     <Text style={{textAlign: 'center', fontSize:20, marginTop: 5}}>Reserve</Text>
                                                 </TouchableOpacity>
@@ -232,6 +233,7 @@ export default class Hour extends Component {
                                                             rentYear: this.state.rentYear,
                                                             IdResponsible: this.IdResponsible,
                                                             IdStaduim: this.IdStaduim,
+                                                            idProgram: program.id,
                                                         })}>
                                                         <Text style={{textAlign: 'center', fontSize:20, marginTop: 5}}>Reserve</Text>
                                                     </TouchableOpacity>

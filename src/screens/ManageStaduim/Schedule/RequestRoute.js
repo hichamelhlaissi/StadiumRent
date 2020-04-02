@@ -22,6 +22,8 @@ export default class RequestRoute extends Component {
             Sender:'',
             Cancel:'',
             Check:false,
+            Program2: [],
+            Array:[]
         };
     };
 
@@ -76,7 +78,64 @@ export default class RequestRoute extends Component {
         this.setState({modalVisible: visible});
     };
 
-    AcceptOrder=(IdOrders, Change=()=>this.setState({ Orders:[]}))=>{
+    AcceptOrder=(IdStaduim, idProgram, Day, IdOrders, programs, Change=()=>this.setState({ Orders:[]}))=>{
+
+        let ref = db.ref('/stadiums/'+IdStaduim+'/programs/'+Day+'/program');
+        let query = ref.orderByKey();
+        query.once("value", function (snapshot) {
+            console.log('-------',snapshot.val())
+            let Data =snapshot.val();
+            console.log('--------', Data );
+            if (Data){
+                Data[idProgram].reserved = !Data[idProgram].reserved;
+                let programsRef = db.ref('/stadiums/'+IdStaduim+'/programs/'+Day);
+                programsRef.set({
+                    program: Data,
+                });
+                console.log('dejaaaaa kayna');
+            }else
+
+                {
+                let ProgramV2 = [
+                    { id: 0, StartHour: '09', EndHour: '10', rentDate: Day, reserved: false},
+                    { id: 1, StartHour: '10', EndHour: '11', rentDate: Day, reserved: false },
+                    { id: 2, StartHour: '11', EndHour: '12', rentDate: Day, reserved: false },
+                    { id: 3, StartHour: '12', EndHour: '13', rentDate: Day, reserved: false },
+                    { id: 4, StartHour: '13', EndHour: '14', rentDate: Day, reserved: false },
+                    { id: 5, StartHour: '14', EndHour: '15', rentDate: Day, reserved: false },
+                    { id: 6, StartHour: '15', EndHour: '16', rentDate: Day, reserved: false },
+                    { id: 7, StartHour: '16', EndHour: '17', rentDate: Day, reserved: false },
+                    { id: 8, StartHour: '17', EndHour: '18', rentDate: Day, reserved: false },
+                    { id: 9, StartHour: '18', EndHour: '19', rentDate: Day, reserved: false },
+                    { id: 10, StartHour: '19', EndHour: '20', rentDate: Day, reserved: false },
+                    { id: 11, StartHour: '20', EndHour: '21', rentDate: Day, reserved: false },
+                    { id: 12, StartHour: '21', EndHour: '22', rentDate: Day, reserved: false },
+                    { id: 13, StartHour: '22', EndHour: '23', rentDate: Day, reserved: false },
+                    { id: 14, StartHour: '23', EndHour: '00', rentDate: Day, reserved: false },
+                ];
+                ProgramV2[idProgram].reserved = !ProgramV2[idProgram].reserved;
+                var programsRef = db.ref('/stadiums/'+IdStaduim+'/programs/'+Day);
+                programsRef.set({
+                    program: ProgramV2,
+                });
+
+                console.log('khaaawya');
+            }
+        }, function (error) {
+            console.log(error);
+        });
+
+        // db.ref('/stadiums/'+IdStaduim+'/programs/'+Day+'/program').on('value', querySnapShot => {
+        //     let data = querySnapShot.val() ? querySnapShot.val() : {};
+        //     programs = {...data};
+        //     //this.setState({Program2: Object.values(programs)})
+        //     //this.state.Program2 = Object.values(programs);
+        //     //console.log(Object.values(programs))
+        // }).then((data) => {
+        //     console.log('---------'+data)
+
+        // });
+
         this.setState({isLoading: true});
         setTimeout(function () {
             db.ref("/orders/"+IdOrders).update({
@@ -88,12 +147,12 @@ export default class RequestRoute extends Component {
                     console.log('success');
                 }
                 Change()
-            }).then(r =>set());
+            }).then(r => set());
         },1000);
       const set=()=> this.getRequestOrders();
     };
 
-    CardList = ({Orders: {uid,StartHour, EndHour, Day, stadiumName,stadiumAddress,city,IdStaduim, Status, IdResponsible}, IdOrders}) => {
+    CardList = ({Orders: {uid,StartHour, EndHour, idProgram, Day, stadiumName,stadiumAddress,city,IdStaduim, Status, IdResponsible}, IdOrders}) => {
 
         if (Status === "Pending") {
             return (
@@ -110,7 +169,7 @@ export default class RequestRoute extends Component {
                     </View>
                     <View style={styles.buttonsView}>
                         <TouchableOpacity style={styles.buttons} onPress={() => {
-                            this.AcceptOrder(IdOrders)
+                            this.AcceptOrder(IdStaduim, idProgram, Day, IdOrders)
                         }}>
                             <Text style={styles.buttonsText}><Icon name="map-marker-alt" size={15}
                                                                    color="#EAE114"/> Accept</Text>
