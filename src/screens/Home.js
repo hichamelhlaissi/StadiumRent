@@ -57,7 +57,6 @@ if (isLogged){
     }
 
 
-
     _getLocationAsync = async () => {
         let { status } = await Permissions.askAsync(Permissions.LOCATION);
         if (status !== 'granted') {
@@ -107,6 +106,11 @@ if (isLogged){
     };
 
     componentDidMount() {
+        const { navigation } = this.props;
+        this.focusListener = navigation.addListener('didFocus', () => {
+            this.setState({ stadiums:[],isLoading: true });
+            this.getStaduimOnMap();
+        });
         this.getStaduimOnMap();
     }
     onStarRatingPress(rating) {
