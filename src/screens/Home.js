@@ -39,7 +39,8 @@ export default class Home extends Component {
             errorMessage: null,
             markers: [],
             appState: AppState.currentState,
-            stadiums: []
+            stadiums: [],
+
         };
 if (isLogged){
 

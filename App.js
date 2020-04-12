@@ -61,13 +61,10 @@ export default class App extends React.Component{
                     )=> {
         setTimeout(function(){
             if (auth.currentUser === null){
-                console.log(auth.currentUser);
                 Change3();
             }else {
-
                 let userCon = auth.currentUser.uid;
                 let ref = db.ref("/users");
-                console.log(userCon);
                 let query = ref.orderByChild("uid").equalTo(userCon);
                  query.once("value", function (snapshot) {
                     snapshot.forEach(function (child) {
