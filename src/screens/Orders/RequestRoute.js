@@ -6,7 +6,7 @@ import {APPROX_STATUSBAR_HEIGHT} from "react-native-paper/src/constants";
 import {auth, db} from "../../services/FireBaseConfig";
 import ShowOnMap from "./ShowOnMap";
 import {FontAwesome} from '@expo/vector-icons';
-
+import {GetDataNotification, SendNotification} from "../ManageStaduim/Schedule/RequestRoute";
 
 export const IsOrderValid=()=>{
     let getDay = new Date().getDate();
@@ -22,28 +22,28 @@ export const IsOrderValid=()=>{
             if (child.val().Status === "Pending"){
 
                 if ((child.val().rentYear === getFullYear) && (child.val().rentMonth === getMonth) && (child.val().rentDay === getDay) && (child.val().StartHour <= getHours)){
-                    db.ref("/orders/"+child.key).update({
+                    db.ref("/orders/" + child.key).update({
                         Status: 'Canceled',
                         Canceled: 'System : Over Time',
-                    });
+                    }).then(r  => GetDataNotification(child.key));
                 }
                 if ((child.val().rentYear === getFullYear) && (child.val().rentMonth === getMonth) && (child.val().rentDay < getDay)){
                     db.ref("/orders/"+child.key).update({
                         Status: 'Canceled',
                         Canceled: 'System : Over Time',
-                    });
+                    }).then(r  => GetDataNotification(child.key));
                 }
                     if ((child.val().rentYear === getFullYear) && (child.val().rentMonth < getMonth)){
                         db.ref("/orders/"+child.key).update({
                             Status: 'Canceled',
                             Canceled: 'System : Over Time',
-                        });
+                        }).then(r  => GetDataNotification(child.key));
                         }
                 if (child.val().rentYear < getFullYear){
                         db.ref("/orders/"+child.key).update({
                             Status: 'Canceled',
                             Canceled: 'System : Over Time',
-                        });
+                        }).then(r  => GetDataNotification(child.key));
                 }
             }
         });
@@ -67,25 +67,25 @@ export const IsOrderDone=()=>{
                         db.ref("/orders/"+child.key).update({
                             Status: 'Canceled',
                             Canceled: 'System : Delivered',
-                        });
+                        }).then(r  => GetDataNotification(child.key));
                     }
                     if ((child.val().rentYear === getFullYear) && (child.val().rentMonth === getMonth) && (child.val().rentDay < getDay)){
                         db.ref("/orders/"+child.key).update({
                             Status: 'Canceled',
                             Canceled: 'System : Delivered',
-                        });
+                        }).then(r  => GetDataNotification(child.key));
                     }
                     if ((child.val().rentYear === getFullYear) && (child.val().rentMonth < getMonth)){
                         db.ref("/orders/"+child.key).update({
                             Status: 'Canceled',
                             Canceled: 'System : Delivered',
-                        });
+                        }).then(r  => GetDataNotification(child.key));
                     }
                     if (child.val().rentYear < getFullYear){
                         db.ref("/orders/"+child.key).update({
                             Status: 'Canceled',
                             Canceled: 'System : Delivered',
-                        });
+                        }).then(r  => GetDataNotification(child.key));
                     }
 
                 }

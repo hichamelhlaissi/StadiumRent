@@ -6,9 +6,6 @@ import * as  ImagePicker from 'expo-image-picker';
 import {auth, db, storage} from "../services/FireBaseConfig";
 import {AntDesign, MaterialIcons,Entypo} from '@expo/vector-icons';
 
-
-
-
 export default class Profile extends React.Component{
     constructor(props) {
         super(props);
@@ -95,8 +92,6 @@ export default class Profile extends React.Component{
         let queryKey = ref.orderByChild("uid").equalTo(userCon);
         queryKey.once("value", function (snapshot, dataU) {
             snapshot.forEach(function (child) {
-
-                console.log('--------------', child.key);
                 dataU = child.key;
                 keytable = child.key
             });
@@ -258,7 +253,6 @@ export default class Profile extends React.Component{
         this.state.user = auth.currentUser;
         let userCon = this.state.user.uid;
         let path = uri+userCon;
-        console.log(path);
         const response = await fetch(uri);
         const blob = await response.blob();
         let ref = storage.ref().child("UsersImage/"+path);

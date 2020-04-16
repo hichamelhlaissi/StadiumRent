@@ -6,6 +6,7 @@ import {APPROX_STATUSBAR_HEIGHT} from "react-native-paper/src/constants";
 import {auth, db} from "../../../services/FireBaseConfig";
 import {FontAwesome, MaterialIcons} from '@expo/vector-icons';
 import {IsOrderDone, IsOrderValid} from "../../Orders/RequestRoute";
+import {GetDataNotification, SendNotification} from "./RequestRoute";
 
 
 export default class ScheduledRoute extends Component {
@@ -46,6 +47,7 @@ export default class ScheduledRoute extends Component {
                     if (error) {
                         Alert.alert('Error', error)
                     } else {
+                        GetDataNotification(IdOrder);
                         console.log('success');
                     }
                 }).then(r =>Change());

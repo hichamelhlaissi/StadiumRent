@@ -7,6 +7,40 @@ import {auth, db} from "../../../services/FireBaseConfig";
 import {FontAwesome, MaterialIcons} from '@expo/vector-icons';
 import {IsOrderDone, IsOrderValid} from "../../Orders/RequestRoute";
 
+export const SendNotification= async (message)=> {
+    const response = await fetch('https://exp.host/--/api/v2/push/send', {
+        method: 'POST',
+        headers: {
+            Accept: 'application/json',
+            'Accept-encoding': 'gzip, deflate',
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(message),
+    });
+};
+
+export const GetDataNotification = (IdOrders)=>{
+    db.ref("/orders").orderByKey().equalTo(IdOrders).once("value", function (snapshot) {
+        snapshot.forEach(function (child) {
+            let Data = child.val();
+            db.ref("/users").orderByChild("uid").equalTo(Data.uid).once("value", function (snapshot) {
+                snapshot.forEach(function (child) {
+                    let UserData = child.val();
+                    const message = {
+                        to: UserData.notificationToken,
+                        sound: 'default',
+                        title: 'Your order ' + Data.Status,
+                        body: Data.Canceled,
+                        //data: { data: 'goes here' },
+                        _displayInForeground: true,
+                    };
+                    SendNotification(message).then(r => console.log('notificationSent'));
+                })
+
+            })
+        });
+    })
+};
 
 export default class RequestRoute extends Component {
     constructor(props){
@@ -48,6 +82,7 @@ export default class RequestRoute extends Component {
                         Alert.alert('Error', error)
                     } else {
                         console.log('success');
+                        GetDataNotification(IdOrder);
                     }
                 }).then(r =>Change());
 
@@ -83,16 +118,13 @@ export default class RequestRoute extends Component {
         let ref = db.ref('/stadiums/'+IdStaduim+'/programs/'+Day+'/program');
         let query = ref.orderByKey();
         query.once("value", function (snapshot) {
-            console.log('-------',snapshot.val())
             let Data =snapshot.val();
-            console.log('--------', Data );
             if (Data){
                 Data[idProgram].reserved = !Data[idProgram].reserved;
                 let programsRef = db.ref('/stadiums/'+IdStaduim+'/programs/'+Day);
                 programsRef.set({
                     program: Data,
                 });
-                console.log('dejaaaaa kayna');
             }else
 
                 {
@@ -118,23 +150,11 @@ export default class RequestRoute extends Component {
                 programsRef.set({
                     program: ProgramV2,
                 });
-
-                console.log('khaaawya');
             }
         }, function (error) {
             console.log(error);
         });
 
-        // db.ref('/stadiums/'+IdStaduim+'/programs/'+Day+'/program').on('value', querySnapShot => {
-        //     let data = querySnapShot.val() ? querySnapShot.val() : {};
-        //     programs = {...data};
-        //     //this.setState({Program2: Object.values(programs)})
-        //     //this.state.Program2 = Object.values(programs);
-        //     //console.log(Object.values(programs))
-        // }).then((data) => {
-        //     console.log('---------'+data)
-
-        // });
 
         this.setState({isLoading: true});
         setTimeout(function () {
@@ -145,11 +165,16 @@ export default class RequestRoute extends Component {
                     Alert.alert('Error', error)
                 } else {
                     console.log('success');
+                    GetDataNotification(IdOrders);
                 }
                 Change()
-            }).then(r => set());
+            }).then(r => {
+                set();
+            });
         },1000);
+
       const set=()=> this.getRequestOrders();
+
     };
 
     CardList = ({Orders: {uid,StartHour, EndHour, idProgram, Day, stadiumName,stadiumAddress,city,IdStaduim, Status, IdResponsible}, IdOrders}) => {
