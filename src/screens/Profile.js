@@ -6,9 +6,6 @@ import * as  ImagePicker from 'expo-image-picker';
 import {auth, db, storage} from "../services/FireBaseConfig";
 import {AntDesign, MaterialIcons,Entypo} from '@expo/vector-icons';
 
-
-
-
 export default class Profile extends React.Component{
     constructor(props) {
         super(props);
@@ -79,7 +76,6 @@ export default class Profile extends React.Component{
         this.GetProfile();
         this.IsEmailVerified();
     }
-
     componentDidMount() {
         const { navigation } = this.props;
         this.focusListener = navigation.addListener('didFocus', () => {
@@ -96,8 +92,6 @@ export default class Profile extends React.Component{
         let queryKey = ref.orderByChild("uid").equalTo(userCon);
         queryKey.once("value", function (snapshot, dataU) {
             snapshot.forEach(function (child) {
-
-                console.log('--------------', child.key);
                 dataU = child.key;
                 keytable = child.key
             });
@@ -111,6 +105,7 @@ export default class Profile extends React.Component{
         if (DataInput.FirstName === ""){
             console.log('DataInput.FirstName',DataInput.FirstName);
         }
+
         if (DataInput.Email === this.state.Data.email){
             db.ref("users/"+this.state.keys).update({
                 FirstName: DataInput.FirstName,
@@ -122,6 +117,7 @@ export default class Profile extends React.Component{
                 City: DataInput.City,
                 Phone_Number: DataInput.Phone_Number,
             }, function (error) {
+
                 if (error) {
                     Alert.alert('Error', error.message)
                 } else {
@@ -130,7 +126,9 @@ export default class Profile extends React.Component{
             }).then(r =>ReloadData(),dataSaved(), EmailV());
         }else {
             let user = auth.currentUser;
-            user.updateEmail(DataInput.email).then(function() {
+            console.log('email -------', this.state.Data.email, DataInput.Email);
+            let newEmail= DataInput.Email;
+            user.updateEmail(newEmail).then(function() {
                 console.log('email changed');
                 fct();
                 dataSaved();
@@ -154,20 +152,15 @@ export default class Profile extends React.Component{
                     Day :  DataInput.Day,
                     City: DataInput.City,
                     Phone_Number: DataInput.Phone_Number,
-                    email: DataInput.email,
+                    email: DataInput.Email,
                 }, function (error) {
                     if (error) {
                         Alert.alert('Error', error)
                     } else {
                         console.log('success');
                     }
-                }).catch(function(error) {
-                    errors(error.message);
-                    console.log('An error happened', error);
-                    dataSaved();
                 });
             };
-
         }
     };
 
@@ -181,7 +174,6 @@ export default class Profile extends React.Component{
         let query = ref.orderByChild("uid").equalTo(userCon);
         query.once("value", function(snapshot, dataU) {
             snapshot.forEach(function(child) {
-                console.log('--------------',child.val());
                 dataU = child.val();
                 dataUser = dataU;
                 Change();
@@ -261,7 +253,6 @@ export default class Profile extends React.Component{
         this.state.user = auth.currentUser;
         let userCon = this.state.user.uid;
         let path = uri+userCon;
-        console.log(path);
         const response = await fetch(uri);
         const blob = await response.blob();
         let ref = storage.ref().child("UsersImage/"+path);
@@ -295,7 +286,6 @@ export default class Profile extends React.Component{
                     return parseInt(val) <1234567899 && parseInt(val) >=123456789;
                 })
         });
-
         const CheckPassword = yup.object({
             NewPassword: yup.string().required().max(40).min(8).test('value-name', 'Space not allowed', (yourValue) => !yourValue.includes(' ')),
             NewPassword2: yup.string().required().max(40).min(8).test('value-name', 'Space not allowed', (yourValue) => !yourValue.includes(' ')),

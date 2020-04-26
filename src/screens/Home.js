@@ -39,7 +39,8 @@ export default class Home extends Component {
             errorMessage: null,
             markers: [],
             appState: AppState.currentState,
-            stadiums: []
+            stadiums: [],
+
         };
 if (isLogged){
 
@@ -124,18 +125,16 @@ if (isLogged){
         });
     }
     getStaduimOnMap =(Data,Change=()=>{this.setState({stadiums: Data, isLoading:false})})=>{
-        setTimeout(function(){
                 db.ref('/stadiums').on('value', querySnapShot => {
                     let data = querySnapShot.val() ? querySnapShot.val() : {};
                     Data= {...data};
                     Change();
                 });
-        }, 3000);
     };
 
     StadiumList = ({stadiums: {stadiums: images,latitude,longitude, responsibleName, stadiumName, stadiumAddress, phoneNumber, uid,city},IdStaduim}) => {
         return(
-            <Marker coordinate={{ latitude: latitude, longitude: longitude }}>
+            <Marker coordinate={{ latitude: parseInt(latitude), longitude: parseInt(longitude) }}>
                 <View style={styles.cardStyle}>
                     <Callout onPress={() => this.props.navigation.navigate('Hour', {
                         stadiumName:stadiumName,

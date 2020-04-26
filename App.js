@@ -3,13 +3,78 @@ import Home from './src/screens/Home';
 import NavigatorUser from './src/routes/drawerUser';
 import NavigatorOwner from './src/routes/drawerOwner';
 import {auth, db} from "./src/services/FireBaseConfig";
-import {ActivityIndicator, Alert, Animated, Image, ImageBackground, StyleSheet, Text, TextInput, TouchableOpacity, View, Modal} from "react-native";
+import {ActivityIndicator, Alert, Animated, Image, ImageBackground, StyleSheet, Text, TextInput, TouchableOpacity, View, Modal, Vibration,Platform} from "react-native";
 import {APPROX_STATUSBAR_HEIGHT} from "react-native-paper/src/constants";
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import {SocialIcon} from "react-native-elements";
 import Register from "./src/Authentification/Register";
 import {IsOrderValid,IsOrderDone} from "./src/screens/Orders/RequestRoute";
+<<<<<<< HEAD
 import {strings} from './src/translations/translate';
+=======
+import { Notifications } from 'expo';
+import * as Permissions from 'expo-permissions';
+import Constants from 'expo-constants';
+
+// //notification config Start
+//
+// export const registerForPushNotificationsAsync = async () => {
+//     if (Constants.isDevice) {
+//         const { status: existingStatus } = await Permissions.getAsync(Permissions.NOTIFICATIONS);
+//         let finalStatus = existingStatus;
+//         if (existingStatus !== 'granted') {
+//             const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
+//             finalStatus = status;
+//         }
+//         if (finalStatus !== 'granted') {
+//             alert('Failed to get push token for push notification!');
+//             return;
+//         }
+//
+//         const token = await Notifications.getExpoPushTokenAsync();
+//         console.log(token);
+//         if (auth.currentUser !== null){
+//             let userCon = auth.currentUser.uid;
+//             let ref = db.ref("/users");
+//             let keytable;
+//             let queryKey = ref.orderByChild("uid").equalTo(userCon);
+//             await queryKey.once("value", function (snapshot) {
+//                 snapshot.forEach(function (child) {
+//                     keytable = child.key
+//                 });
+//
+//             }).then(async function (data) {
+//                 let updates = {};
+//                 updates['/notificationToken'] = token;
+//                 await db.ref('/users/'+keytable).update(updates);
+//             });
+//
+//         }
+//
+//         this.setState({ expoPushToken: token });
+//     } else {
+//         alert('Must use physical device for Push Notifications');
+//     }
+//
+//     if (Platform.OS === 'android') {
+//         Notifications.createChannelAndroidAsync('default', {
+//             name: 'default',
+//             sound: true,
+//             priority: 'max',
+//             vibrate: [0, 250, 250, 250],
+//         });
+//     }
+// };
+//
+// export const _handleNotification = notification => {
+//     Vibration.vibrate();
+//     console.log(notification);
+//     this.setState({ notification: notification });
+// };
+//
+// //notification config End
+
+>>>>>>> 3f6601e13f9a3e30a6c8252d4512fea627de34d9
 
 export default class App extends React.Component{
 
@@ -30,8 +95,65 @@ export default class App extends React.Component{
             error:null,
             secureTextEntryFirst:true,
             showFirst:'show',
+            expoPushToken: '',
+            notification: {},
         }
     }
+    //notification config Start
+    registerForPushNotificationsAsync = async () => {
+        if (Constants.isDevice) {
+            const { status: existingStatus } = await Permissions.getAsync(Permissions.NOTIFICATIONS);
+            let finalStatus = existingStatus;
+            if (existingStatus !== 'granted') {
+                const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
+                finalStatus = status;
+            }
+            if (finalStatus !== 'granted') {
+                alert('Failed to get push token for push notification!');
+                return;
+            }
+
+            const token = await Notifications.getExpoPushTokenAsync();
+            console.log(token);
+            if (auth.currentUser !== null){
+                let userCon = auth.currentUser.uid;
+                let ref = db.ref("/users");
+                let keytable;
+                let queryKey = ref.orderByChild("uid").equalTo(userCon);
+                await queryKey.once("value", function (snapshot) {
+                    snapshot.forEach(function (child) {
+                        keytable = child.key
+                    });
+
+                }).then(async function (data) {
+                    let updates = {};
+                    updates['/notificationToken'] = token;
+                    await db.ref('/users/'+keytable).update(updates);
+                });
+
+            }
+
+            this.setState({ expoPushToken: token });
+        } else {
+            alert('Must use physical device for Push Notifications');
+        }
+
+        if (Platform.OS === 'android') {
+            Notifications.createChannelAndroidAsync('default', {
+                name: 'default',
+                sound: true,
+                priority: 'max',
+                vibrate: [0, 250, 250, 250],
+            });
+        }
+    };
+    _handleNotification = notification => {
+        Vibration.vibrate();
+        console.log(notification);
+        this.setState({ notification: notification });
+    };
+    //notification config End
+
 
     setModalVisible(visible) {
         this.setState({modalVisible: visible});
@@ -43,10 +165,14 @@ export default class App extends React.Component{
         this.setState({password: value})
     };
     componentDidMount() {
-        //Function dial depart :
+        //Function depart :
         IsOrderValid();
         IsOrderDone();
-        // End FUnction dial depart
+        // End FUnction depart
+        //notification config Sta
+        this.registerForPushNotificationsAsync();
+        this._notificationSubscription = Notifications.addListener(this._handleNotification);
+        //notification config End
 
         this.getNavigator();
     }
@@ -59,17 +185,15 @@ export default class App extends React.Component{
     };
 
     getNavigator=  (Change=()=>this.setState({Data:'userResponsible',isLoading: false}), Change2=()=>this.setState({Data:'userNormal',isLoading: false}),
-                    Change3=()=>this.setState({isLoading: false})
+                    Change3=()=>this.setState({isLoading: false}),
+                    Change4=()=>this.setState({isLoading: false, error: 'There is no user record corresponding to this identifier. The user may have been deleted.'}),
                     )=> {
         setTimeout(function(){
             if (auth.currentUser === null){
-                console.log(auth.currentUser);
                 Change3();
             }else {
-
                 let userCon = auth.currentUser.uid;
                 let ref = db.ref("/users");
-                console.log(userCon);
                 let query = ref.orderByChild("uid").equalTo(userCon);
                  query.once("value", function (snapshot) {
                     snapshot.forEach(function (child) {
@@ -80,8 +204,12 @@ export default class App extends React.Component{
                         if (child.val().userType === 'userNormal') {
                             Change2();
                         }
+                        if (child.val().userType === 'userAdmin') {
+                            Change4();
+                        }
                     });
                 });
+
             }
         }, 5000);
 
