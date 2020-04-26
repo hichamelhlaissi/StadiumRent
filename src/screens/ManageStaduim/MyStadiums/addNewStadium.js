@@ -116,7 +116,7 @@ export default class addNewStadium extends React.Component{
         const response = await fetch(uri);
         const blob = await response.blob();
 
-        var ref = storage.ref().child("images/" + imageName);
+        var ref = storage.ref().child("images/"+auth.currentUser.uid+'/'+this.state.stadiumName+'/' + imageName);
         return ref.put(blob);
     };
     termsAndConditions(){
@@ -162,44 +162,39 @@ export default class addNewStadium extends React.Component{
             });
         });
     };
-    onAllDone(){
+    onAllDone() {
         this.state.user = auth.currentUser;
-        if (this.state.stadiumName === ""|| this.state.city === "" || this.state.responsibleName === "" || this.state.phoneNumber === "" || this.state.stadiumAddress === "" || Object.keys(this.state.images).length   === 0){
+        if (this.state.stadiumName === "" || this.state.city === "" || this.state.responsibleName === "" || this.state.phoneNumber === "" || Object.keys(this.state.images).length === 0) {
             Alert.alert('Attention!!', 'Please fill the required fields.. All the fields are required except: description');
-        }else if(!this.state.isChecked){
+        } else if (!this.state.isChecked) {
             Alert.alert('Please accept our terms and conditions to continue');
         } else {
-
-            if ((this.state.Data.FirstName === "") || (this.state.Data.LastName === "") || (this.state.Data.Phone_Number === "") || (!this.state.user.emailVerified)){
-                this.props.navigation.navigate('Profile');
-                this.setState({isLoading:false});
-            }else {
-                this.state.isLoading = true;
-                for (let image of this.state.images){
-                    this.uploadImage(image.uri, image.name);
-                    this.state.imagesDb.push({file: image.name+auth.currentUser.uid});
-                }
-                db.ref('/stadiums').push({
-                    uid: auth.currentUser.uid,
-                    stadiumName: this.state.stadiumName,
-                    responsibleName: this.state.responsibleName,
-                    phoneNumber: this.state.phoneNumber,
-                    stadiumAddress: this.state.stadiumAddress,
-                    description: this.state.description,
-                    status: this.state.status,
-                    images: this.state.imagesDb,
-                    payment: this.state.payment,
-                    latitude: this.state.latitude,
-                    longitude: this.state.longitude,
-                    city: this.state.city,
-                    stadiumId: ""
-                }).then(data => {
-                    this.state.isLoading = false;
-                    this.props.navigation.navigate('MyStaduim')
-                });
+            this.state.isLoading = true;
+            for (let image of this.state.images) {
+                this.uploadImage(image.uri, image.name);
+                this.state.imagesDb.push({file: image.name});
             }
-
+            db.ref('/stadiums').push({
+                uid: auth.currentUser.uid,
+                stadiumName: this.state.stadiumName,
+                responsibleName: this.state.responsibleName,
+                phoneNumber: this.state.phoneNumber,
+                stadiumAddress: this.state.stadiumAddress,
+                description: this.state.description,
+                status: this.state.status,
+                images: this.state.imagesDb,
+                payment: this.state.payment,
+                latitude: this.state.latitude,
+                longitude: this.state.longitude,
+                city: this.state.city,
+                stadiumId: ""
+            }).then(data => {
+                this.state.isLoading = false;
+                this.props.navigation.navigate('MyStaduim')
+            });
         }
+
+
     };
     render() {
         let citiesKeys = Object.keys(this.state.cities);
